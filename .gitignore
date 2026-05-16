@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.log
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.godot/
+*.import
+godot-game-dev-workflow-smoke/
+*.zip
+

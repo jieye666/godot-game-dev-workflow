@@ -1,0 +1,4 @@
+interface:
+  display_name: "Godot Game Dev Workflow / Godot 游戏开发流程"
+  short_description: "Manage Godot game projects with low-token docs, quality gates, contracts, MCP/editor boundaries, source tracking, verification, and Chinese-first documentation. 管理 Godot 项目、中文文档、质量门、契约、MCP/editor 边界、来源追踪和验证。"
+  default_prompt: "Use $godot-game-dev-workflow to manage, initialize, plan, audit, implement, validate, or document Godot project work with AI-readable authoritative docs, low-token context routing, high-quality gameplay code standards, readiness gates, implementation contracts, MCP/editor collaboration rules, external reference intake, manual playtest steps, closeout sync, verification, and Chinese-first documentation. 使用该 skill 管理 Godot 项目的中文优先文档、计划、实现、验证、MCP/editor 协作、来源追踪和收尾。"

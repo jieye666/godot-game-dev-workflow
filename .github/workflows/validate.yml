@@ -1,0 +1,23 @@
+name: Validate Skill
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Skill self-check
+        run: python scripts/skill_self_check.py .
+      - name: Project docs smoke test
+        run: |
+          tmp="$(mktemp -d)"
+          printf '; Engine configuration file\nconfig_version=5\n' > "$tmp/project.godot"
+          python scripts/init_godot_ai_docs.py "$tmp"
+          python scripts/init_godot_ai_docs.py "$tmp" --check
+          python scripts/audit_godot_docs.py "$tmp"
