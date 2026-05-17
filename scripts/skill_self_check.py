@@ -116,6 +116,9 @@ REQUIRED_REFERENCE_PHRASES = {
         "验证分层",
         "validate-project.ps1",
         "manual playtest",
+        "exact controls",
+        "F5",
+        "F9",
         "ERROR",
         "push_error",
         "行为没变",
@@ -149,6 +152,8 @@ REQUIRED_PHRASES = [
     "selected tier",
     "无需人工审查",
     "直接 commit",
+    "exact controls",
+    "保存读取步骤",
 ]
 OPENAI_REQUIRED_TERMS = [
     "manage",

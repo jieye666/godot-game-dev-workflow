@@ -43,6 +43,12 @@ InputMap:
 Autoload decision:
 Verification:
 Manual acceptance:
+  - Scene path:
+  - Start state:
+  - Exact controls / actions:
+  - Visible expected results:
+  - Save/load steps if relevant:
+  - Failure feedback to report:
 Doc sync targets:
 Implementation Readiness:
 ```

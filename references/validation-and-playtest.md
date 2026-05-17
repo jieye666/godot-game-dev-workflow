@@ -35,7 +35,8 @@
 - 不能只报告 exit code；必须说明是否扫描 Godot output error text。
 - 自动验证适合证明 parse、scene load、unit/smoke route、doc audit、script runner。
 - manual playtest 适合证明 movement feel、camera readability、route clarity、Boss pacing、UI feedback、fun。
-- 如果 manual playtest 未执行，最终报告必须写清 scene、操作、期望结果、失败反馈，不声称已验收。
+- 如果 manual playtest 未执行，最终报告必须写清 scene、exact controls、操作、期望结果、失败反馈，不声称已验收。
+- Manual acceptance steps 必须能让用户照做：写出 scene path、起点、路线、具体按键或输入、可见 UI 文案/状态、保存读取步骤和失败时应反馈什么。涉及 Boss/debug route/save-load/gated progression 时，必须写清类似 `F6` 造成白盒伤害、`F5` 保存、`F9` 读取这类 exact controls；不要只写“击败 Boss”“确认路线打开”。
 - 如果用户已经手动接受，把 acceptance result 写进 closeout docs。
 
 ## 失败处理
