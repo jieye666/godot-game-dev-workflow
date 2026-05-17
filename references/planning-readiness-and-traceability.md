@@ -9,6 +9,15 @@ Readiness states：pending、ready、escalated。每个 task 必须能追溯到 
 - 用户要求多 agent、任务拆分、先计划、按计划执行。
 - 自动验证缺口、manual playtest 缺口会影响能否开始实现。
 
+## 档位选择记录
+
+正式计划前记录档位选择，避免小任务过度计划或大任务验证不足。
+
+- Recommended tier：agent 推荐的 `快速档` / `标准档` / `严格档`。
+- Reason：推荐理由，至少覆盖 scope、风险、验证成本和是否涉及 gameplay-visible behavior。
+- Selected tier：用户确认的档位；如果用户已明确指定档位，记录该选择并跳过重复询问。
+- Tier tradeoff：一句话说明为什么不用更轻或更重的档位。
+
 ## Readiness 判定
 
 - `pending`：目标、owned files、依赖、验证、manual acceptance 任一关键项缺失。只能补计划、查证据、拆任务，不直接改 gameplay code。
@@ -20,6 +29,7 @@ Readiness states：pending、ready、escalated。每个 task 必须能追溯到 
 - Task ID 或短名。
 - Requirement/design source：用户原话、GDD、active plan、bug report 或 reference file。
 - Current evidence：读过的 docs、scene、script、test 或 log。
+- Tier：recommended tier、selected tier、reason。
 - Owned files / prohibited files。
 - Verification：自动命令、Godot scene、log scan、manual playtest。
 - Status：`pending` / `ready` / `escalated`。

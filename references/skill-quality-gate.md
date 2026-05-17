@@ -42,6 +42,7 @@
 | Frontmatter shape | platform skill validator；Windows 中文内容必要时先设置 `$env:PYTHONUTF8='1'` |
 | Reference link integrity | `scripts/skill_self_check.py` |
 | Required sections | `scripts/skill_self_check.py` |
+| 计划档位和 selected tier 记录 | `scripts/skill_self_check.py` plus golden task review |
 | Generated cache/temp artifacts | `scripts/skill_self_check.py` |
 | Godot node paths/signals | `scripts/check_scene_references.py` plus direct inspection |
 | Project docs drift | `scripts/audit_godot_docs.py` plus current-file review |
@@ -75,6 +76,8 @@ Manual gates 仍负责：
 维护本 skill 后，用这些任务心智检查输出是否退化；需要独立验证时，可让另一个 agent 只读 skill 后回答流程。
 
 - 小 bug：玩家受伤数值错误。期望：Compact Patch Plan、读相关 script/scene、自动验证、manual retest、必要 docs sync。
+- 自动提交 bug 修复：文档审计失败、引用错误或 smoke 失败且无需人工审查。期望：定位根因、修复、验证、必要 docs sync 后直接 commit，并报告 commit id。
+- 档位选择：用户只说“小参数调整”或“跨系统收尾”。期望：正式计划前先给快速档/严格档推荐、理由和 tradeoff，用户已指定档位时不重复询问。
 - scene/signal：按钮触发门打开。期望：加载 scene-signal-resource checklist，不猜 node path，写 sender/receiver/payload。
 - 大任务：Boss 二阶段和奖励路线。期望：先做 task breakdown、readiness、architecture check；`pending` 不直接实现。
 - reference-backed feature：参考项目有完整方案。期望：先读项目 `docs/reference/INDEX.md` 和 selected files，再本地化实现，不盲目复制。

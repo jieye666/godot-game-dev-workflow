@@ -2,6 +2,14 @@
 
 自动验证证明结构、脚本和 smoke route；人工验收证明 feel、readability、pacing、fun。两者必须分开报告。
 
+## 验证分层和时间成本
+
+- Godot headless 启动、全量 smoke、完整 validation 和失败后定位通常是主要耗时点；不要在每个小步骤都默认跑完整验证。
+- 快速档：开发中跑相关 parser、unit、单 scene smoke 或最小命令；收尾报告说明未跑完整 validation 的原因。
+- 标准档：实现中跑相关 smoke 或聚焦测试；影响 gameplay-visible behavior 时给 manual playtest 步骤；收尾按项目风险决定是否跑完整 validation。
+- 严格档：跨系统、架构变更、multi-agent integration、提交前收尾或用户手动验收 closeout，必须跑项目完整 validation，例如 `scripts\validate-project.ps1`。
+- 无论档位，Godot 输出出现 `ERROR`、`SCRIPT ERROR`、`PARSE ERROR`、`push_error` 时都判定失败；自动验证不能替代 manual playtest。
+
 ## Godot 启动路径
 
 - 先读项目 quick context、`AGENTS.md` 或验证脚本中的 Godot executable；其次使用 `GODOT_EXE`。

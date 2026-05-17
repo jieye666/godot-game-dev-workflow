@@ -9,11 +9,25 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 把本 skill 当作 Godot 项目管理、gameplay 开发、验证和交接的操作流程。目标是让 AI agent 通过权威文档、最小上下文、implementation contracts、系统边界、MCP/editor 协作规则和验证流程稳定推进项目。
 
-核心规则：先检查真实项目状态，用项目 `docs/INDEX.md` 找权威上下文；按任务大小选择 Patch Plan / Task Plan / Milestone Plan；改代码前确认系统关系和扩展点；验证后同步文档和历史。
+核心规则：先检查真实项目状态，用项目 `docs/INDEX.md` 找权威上下文；正式计划前给出快速档 / 标准档 / 严格档的推荐和理由，由用户确认档位；按档位选择 Patch Plan / Task Plan / Milestone Plan；改代码前确认系统关系和扩展点；验证后同步文档和历史。
 
 低 token 不是少读关键文件，而是用 hot context、routed references、current code、closeout docs 避免重复发现。不要因为低上下文而跳过 scene tree、script pseudocode、signal contract、resource dependency、InputMap、Autoload、ownership 或 verification requirement。
 
 `SKILL.md` 是路由器，详细规则放在 `references/`。新增或更新文档、docs sync、commit message 和面向人查看的说明默认中文；路径、命令、API、Godot 标识符、GDD 编号、文件名和专有名词保持英文。
+
+## 计划档位
+
+- 快速档：小 bug、小参数、小文案、one-file fix。只读入口文档和相关文件；给 3-5 行 Patch Plan；跑窄验证或相关 smoke。
+- 标准档：单个 GDD gameplay slice 或有限 scene/script change。读 `STATUS`、`NEXT-STEPS`、相关 plan、真实 scene/script；写 Task Plan；执行后同步必要 docs。
+- 严格档：跨系统、多 agent、架构变更、提交前收尾或高风险修复。写完整 contract、ownership、验证计划、docs/history closeout；收尾跑完整 validation。
+- 正式计划前先给 recommended tier、reason 和主要风险；用户确认 selected tier 后再写对应深度计划。用户已明确指定档位时，不重复询问，只记录选择并执行。
+
+## 自动提交规则
+
+- 用户已授权提交、项目 policy 要求提交，或 bug 修复可由自动验证充分证明且不需要人工审查时，完成验证和必要 docs sync 后直接 commit。
+- 不需要人工审查的 bug 修复：parser/test/smoke 失败、路径/引用错误、明确 runtime error、文档审计失败、验证脚本问题、非主观数值或代码缺陷，且有自动验证能覆盖修复结果。
+- 仍需等待人工验收：movement feel、Boss pacing、route readability、camera/UI 观感、玩法节奏、manual-only behavior，或用户明确要求先不要提交。
+- 直接提交前仍要检查 `git status` 和 diff，只加入本任务 owned files；提交后报告 commit id、验证命令和未执行的 manual acceptance。
 
 ## 不适用 / 边界
 
@@ -30,18 +44,19 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 1. 找到 `project.godot`，确认 Godot 项目根。
 2. 需要 MCP/editor 时加载 `mcp-and-editor-workflow.md`，先把 tool evidence 和 file evidence 分开。
-3. 判断 plan depth：Patch Plan 用于小 bug/tuning/copy/one-file fix；Task Plan 用于 gameplay slice 或 scene/script change；Milestone Plan 用于 vague/multi-system/multi-agent/multi-session work。
-4. 大任务先更新 planning artifacts：brief、requirements、design、task breakdown、verification plan、progress log；加载 `large-project-planning.md` 和 `planning-readiness-and-traceability.md`。
-5. gameplay system 或大功能要加载 `extensible-gameplay-architecture.md`，先做 architecture check。
-6. documented project 先读 quick context / identity，再读 `docs/INDEX.md`，然后读 index 指向的 status 和 next-step files。docs 冲突时更新 designated source of truth，不新增重复事实。
-7. 改文件前写相应深度计划。Patch Plan 保持紧凑：goal、owned files、current evidence、risk、verification、manual acceptance。Task Plan 涉及 scenes/scripts/signals/resources/InputMap/Autoload/ownership 时必须写完整 contract。
-8. 使用 node path 前检查真实 `.tscn` 和 `.gd`；不要猜 node name 或 signal connection。
-9. planned work 只有 traceable 且 Implementation Readiness 为 `ready` 时执行；`escalated` 需要用户接受。
-10. implementation agent 可以补 risk notes 和 verification checks，但不能推翻已接受 scope；计划明显错误时暂停报告。
-11. 自动验证和 manual playtest 分开报告；Godot executable 先读项目 quick context / 验证脚本 / `GODOT_EXE`，不要猜系统路径。
-12. manual acceptance 需要给 scene、action、expected result、failure feedback。
-13. behavior、nodes、signals、resources、tuning、task status、architecture decision 或 verification evidence 变化后，同步项目 docs。
-14. 完成 implementation、doc cleanup 或 milestone handoff 后，按 `session-closeout-sync.md` 收尾。用户手动验收通过时，docs sync 属于同一执行单元。是否 commit 服从用户要求或项目 policy。
+3. 正式计划前判断档位并给推荐理由；用户确认后再进入对应 plan depth。
+4. 判断 plan depth：Patch Plan 用于快速档；Task Plan 用于标准档 gameplay slice 或 scene/script change；Milestone Plan 用于严格档 vague/multi-system/multi-agent/multi-session work。
+5. 大任务先更新 planning artifacts：brief、requirements、design、task breakdown、verification plan、progress log；加载 `large-project-planning.md` 和 `planning-readiness-and-traceability.md`。
+6. gameplay system 或大功能要加载 `extensible-gameplay-architecture.md`，先做 architecture check。
+7. documented project 先读 quick context / identity，再读 `docs/INDEX.md`，然后读 index 指向的 status 和 next-step files。docs 冲突时更新 designated source of truth，不新增重复事实。
+8. 改文件前写相应深度计划。Patch Plan 保持紧凑：goal、owned files、current evidence、risk、verification、manual acceptance。Task Plan 涉及 scenes/scripts/signals/resources/InputMap/Autoload/ownership 时必须写完整 contract。
+9. 使用 node path 前检查真实 `.tscn` 和 `.gd`；不要猜 node name 或 signal connection。
+10. planned work 只有 traceable 且 Implementation Readiness 为 `ready` 时执行；`escalated` 需要用户接受。
+11. implementation agent 可以补 risk notes 和 verification checks，但不能推翻已接受 scope；计划明显错误时暂停报告。
+12. 自动验证和 manual playtest 分开报告；Godot executable 先读项目 quick context / 验证脚本 / `GODOT_EXE`，不要猜系统路径。
+13. manual acceptance 需要给 scene、action、expected result、failure feedback。
+14. behavior、nodes、signals、resources、tuning、task status、architecture decision 或 verification evidence 变化后，同步项目 docs。
+15. 完成 implementation、doc cleanup 或 milestone handoff 后，按 `session-closeout-sync.md` 收尾。用户手动验收通过时，docs sync 属于同一执行单元；无需人工审查的 bug 修复在验证和必要 docs sync 后直接 commit。
 
 ## Task Routing
 
@@ -68,6 +83,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 | 场景 | 必须确认 | 不允许 |
 | --- | --- | --- |
+| 正式计划前 | 推荐档位、理由、用户确认的 selected tier | 未确认档位就写过重或过轻的计划 |
 | 改 gameplay code | task 可追踪且 readiness 为 `ready`；必要时加载 `implementation-contracts.md` | 从 `pending` 计划直接实现 |
 | 改 `.tscn` / signal / resource | 读真实 scene/script；加载 `scene-signal-resource-checklist.md` | 猜 node path、signal、resource 实例 |
 | 大功能或可复用系统 | 写 architecture check；加载 `extensible-gameplay-architecture.md` | 为首版方便牺牲明显扩展点 |
@@ -80,6 +96,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 - 始终先找 `project.godot`。
 - 有 quick context / identity 时先读它，再读 `docs/INDEX.md`；随后只读 index 指向的 current/status/next-step files。
 - `docs/INDEX.md` 是 router；不要默认加载全部 docs、全部 plans 或 full history。
+- 按档位控制读取深度：快速档不读完整 history；标准档只读相关 plan/source；严格档才加载完整 contract、history 和 closeout references。
 - 不在已有 accepted active plan 时重写计划；先读它，再补必要 risk / verification notes。
 - 不默认扫描完整 reference projects；先读项目 `docs/reference/INDEX.md`，再读 selected files。
 - identity facts 放在项目指定 source of truth；其他文档链接过去。
@@ -124,7 +141,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 Input: "敌人碰到玩家应该造成 1 点伤害，而不是直接杀死玩家。"
 
-Steps: 定位项目根；读 quick context / index / status / next steps；检查相关 player/enemy/damage/health/respawn scripts/scenes；写 Compact Patch Plan；窄改；运行 parser/headless/tests；行为变化时同步 docs/history。
+Steps: 定位项目根；推荐快速档并等用户确认；读 quick context / index 和相关 player/enemy/damage/health/respawn scripts/scenes；写 Compact Patch Plan；窄改；运行 parser/headless/tests；行为变化时同步 docs/history。
 
 Expected output: changed files 限定在 damage/health path；final handoff 分开 automated checks 和 manual playtest needs。
 
@@ -132,7 +149,7 @@ Expected output: changed files 限定在 damage/health path；final handoff 分�
 
 Input: "分几个会话加入 checkpoint、hazard、HUD 和关卡目标改进。"
 
-Steps: 加载 large planning、readiness、architecture references；更新 requirements/design/task breakdown/verification plan/progress log；把 requirements/design 映射到 tasks，标记 `pending` / `ready` / `escalated`；只在 selected task ready 后实现。
+Steps: 推荐严格档并等用户确认；加载 large planning、readiness、architecture references；更新 requirements/design/task breakdown/verification plan/progress log；把 requirements/design 映射到 tasks，标记 `pending` / `ready` / `escalated`；只在 selected task ready 后实现。
 
 Expected output: plan 含 task IDs、system ownership、verification gates、explicit gaps；不从 `pending` 计划直接实现。
 
@@ -157,9 +174,11 @@ script output 是 advisory；改动前仍要直接检查相关 scene 和 script�
 
 ## Completion Criteria
 
-完成前说明 changed files、automated checks、system boundaries、extension points、manual steps 或 user acceptance、docs sync、working basis、next recommended task。不要声称未实际发生的 editor/MCP/manual acceptance。
+完成前说明 selected tier、changed files、automated checks、system boundaries、extension points、manual steps 或 user acceptance、docs sync、working basis、next recommended task。不要声称未实际发生的 editor/MCP/manual acceptance。
 
 large task 要说明 task ID 或 planning artifact；manual validation 通过后，把 docs/history 更新放在同一执行单元。commit 只在用户要求或项目 policy 要求时做。
+
+无需人工审查的 bug 修复属于自动提交场景：如果自动验证能证明修复结果，收尾后直接 commit；如果涉及 player-facing feel/readability/pacing 或 manual-only 验收，先给用户手动验收步骤，不提前提交。
 
 ## Maintenance
 

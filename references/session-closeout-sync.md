@@ -55,7 +55,10 @@ implementation、milestone、doc cleanup 或 handoff 后使用。同步 current 
 
 ## Git Commit 描述
 
-- 用户要求 commit 或项目 policy 要求 commit 时，commit message 默认中文。
+- 用户要求 commit、项目 policy 要求 commit，或 bug 修复不需要人工审查且自动验证能证明结果时，验证和必要 docs sync 后直接 commit。
+- 不需要人工审查的 bug 修复包括 parser/test/smoke 失败、路径/引用错误、明确 runtime error、文档审计失败、验证脚本问题、非主观数值或代码缺陷。
+- movement feel、Boss pacing、route readability、camera/UI 观感、玩法节奏、manual-only behavior 或用户明确要求先不要提交时，先等待人工验收，不提前 commit。
+- commit message 默认中文。
 - 保留必要英文：路径、命令、Godot API、InputMap action、signal、class/resource/scene 文件名、GDD 编号、issue/PR 编号、约定式 commit type。
 - 推荐格式：`docs: 同步 GDD-080 交接状态`、`fix: 修复 BossRewardRouteTest 的完成标记`、`feat: 接入 MovementTest 白盒反馈`。
 - commit 前后报告给用户的摘要也用中文，明确 changed files、验证命令、结果、未做的 manual acceptance。

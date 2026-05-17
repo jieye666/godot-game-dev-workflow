@@ -18,6 +18,8 @@ SCRIPT_RE = re.compile(r"`(scripts/[^`]+\.py)")
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
 INDEX_REF_RE = re.compile(r"^- `([^`/]+\.md)`[:：]", re.MULTILINE)
 REQUIRED_SECTIONS = [
+    "## 计划档位",
+    "## 自动提交规则",
     "## 不适用 / 边界",
     "## 工作流",
     "## Task Routing",
@@ -63,6 +65,9 @@ REQUIRED_REFERENCE_PHRASES = {
         "escalated",
         "Owned files / prohibited files",
         "manual playtest",
+        "Recommended tier",
+        "Selected tier",
+        "Tier tradeoff",
     ],
     "references/large-project-planning.md": [
         "Task ID",
@@ -108,6 +113,8 @@ REQUIRED_REFERENCE_PHRASES = {
         "runtime path",
     ],
     "references/validation-and-playtest.md": [
+        "验证分层",
+        "validate-project.ps1",
         "manual playtest",
         "ERROR",
         "push_error",
@@ -117,6 +124,7 @@ REQUIRED_REFERENCE_PHRASES = {
         "Implementation Closeout",
         "Milestone Handoff",
         "Git Commit 描述",
+        "不需要人工审查",
         "NEXT-STEPS.md",
         "manual acceptance",
     ],
@@ -134,6 +142,13 @@ REQUIRED_PHRASES = [
     "commit message",
     "audit_doc_language.py",
     "mcp-and-editor-workflow.md",
+    "快速档",
+    "标准档",
+    "严格档",
+    "recommended tier",
+    "selected tier",
+    "无需人工审查",
+    "直接 commit",
 ]
 OPENAI_REQUIRED_TERMS = [
     "manage",
