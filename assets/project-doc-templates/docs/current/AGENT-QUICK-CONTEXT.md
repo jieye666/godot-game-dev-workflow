@@ -6,26 +6,26 @@
 - Project file: `project.godot`
 - Godot version: TBD
 - Main scene: TBD
-- Manual test scene: TBD
 - Autoloads:
 
-## 验证
+## 启动与验证
 
+- Run command: TBD
 - Validation command: TBD
 - Godot output scan: 必须检查 `ERROR`、`SCRIPT ERROR`、`PARSE ERROR`、`push_error`
-- MCP/editor status: TBD
 
 ## 文档入口
 
 - Docs source of truth: `docs/INDEX.md`
-- Current status: `docs/current/STATUS.md`
+- Runtime status / manual test scene / MCP/editor status: `docs/current/STATUS.md`
 - Next steps: `docs/plans/NEXT-STEPS.md`
+- External references: `docs/reference/INDEX.md`
 
-## 当前工作
+## 当前热信息
 
 - Current milestone: TBD
-- Accepted behavior: TBD
 - Known blockers: TBD
+- Immediate next action: TBD
 
 ## 高频规则
 

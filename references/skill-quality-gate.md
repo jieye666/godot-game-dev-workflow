@@ -33,6 +33,8 @@
 8. Evidence：外部来源和不确定性记录在 `external-repositories.md` 或对应 reference。
 9. Package hygiene：不保留 cache、temp logs、local run artifacts。
 10. Merge coverage：从旧 skill 或外部来源迁入时，确认每个高价值点落在 `SKILL.md`、focused reference、script、template 或明确拒收记录之一。
+11. Failure prevention：新增规则能映射到 assumption、owned scope、source of truth、deterministic check、verification 或 manual acceptance；否则只保留为参考，不进 core workflow。
+12. Context cost：新增内容不得让 `SKILL.md` 变成长文章；核心门靠短句，细节进入 focused reference，能脚本化的规则进入 helper script。
 
 ## Machine vs Manual Gates
 
@@ -42,11 +44,14 @@
 | Frontmatter shape | platform skill validator；Windows 中文内容必要时先设置 `$env:PYTHONUTF8='1'` |
 | Reference link integrity | `scripts/skill_self_check.py` |
 | Required sections | `scripts/skill_self_check.py` |
-| 计划档位和 selected tier 记录 | `scripts/skill_self_check.py` plus golden task review |
-| Generated cache/temp artifacts | `scripts/skill_self_check.py` |
+| agent 自选档位和 selected tier 记录 | `scripts/skill_self_check.py` plus golden task review |
+| 玩家可见计划的 reference research 字段 | `scripts/skill_self_check.py` plus golden task review |
+| Generated cache/temp artifacts | `scripts/skill_self_check.py` 报告；显式 fix flag 才清理 |
 | Godot node paths/signals | `scripts/check_scene_references.py` plus direct inspection |
 | Project docs drift | `scripts/audit_godot_docs.py` plus current-file review |
 | 中文文档规范 | `scripts/audit_doc_language.py` plus manual review |
+| AI failure prevention fields | `scripts/skill_self_check.py` plus golden task review |
+| Deterministic checks before judgement | helper script / command evidence plus manual review |
 
 Manual gates 仍负责：
 
@@ -54,6 +59,7 @@ Manual gates 仍负责：
 - 新规则是降低返工，还是只增加仪式感。
 - gameplay feel、readability、pacing、route flow 是否可接受。
 - 外部 workflow idea 是否已转成 Godot-specific behavior。
+- source 冲突是否被明确暴露，而不是折中混合。
 
 ## Scoring Rubric
 
@@ -77,12 +83,17 @@ Manual gates 仍负责：
 
 - 小 bug：玩家受伤数值错误。期望：Compact Patch Plan、读相关 script/scene、自动验证、manual retest、必要 docs sync。
 - 自动提交 bug 修复：文档审计失败、引用错误或 smoke 失败且无需人工审查。期望：定位根因、修复、验证、必要 docs sync 后直接 commit，并报告 commit id。
-- 档位选择：用户只说“小参数调整”或“跨系统收尾”。期望：正式计划前先给快速档/严格档推荐、理由和 tradeoff，用户已指定档位时不重复询问。
+- 档位选择：用户只说“小参数调整”或“跨系统收尾”。期望：agent 自行选择快速档/严格档，记录理由和 tradeoff；只有 scope 不清、高风险或 `escalated` 才询问用户。
 - scene/signal：按钮触发门打开。期望：加载 scene-signal-resource checklist，不猜 node path，写 sender/receiver/payload。
-- 大任务：Boss 二阶段和奖励路线。期望：先做 task breakdown、readiness、architecture check；`pending` 不直接实现。
+- 大任务：Boss 二阶段和奖励路线。期望：先联网查同类 Boss phase、telegraph、reward pacing 或开源实现，再做 task breakdown、readiness、architecture check；`pending` 不直接实现。
 - reference-backed feature：参考项目有完整方案。期望：先读项目 `docs/reference/INDEX.md` 和 selected files，再本地化实现，不盲目复制。
 - 行为没变：测试通过但游戏里没变化。期望：检查 played scene、attached script、main route、resource instance，而不是只补测试。
 - 收尾：用户验收一个 prototype slice。期望：同步 current/status/history/next steps，报告 automated checks 和 manual acceptance。
+- 流程复盘：用户说“刚才流程有问题，整理进 skill”。期望：先识别 task shape、scope creep、验证节奏、文档时机和暂停点等流程层级问题，不只补单点 UI 或测试规则。
+- 玩家可见 polish：用户要求 UI、路线可读性、手感或 Boss 节奏“更像游戏”。期望：先声明最小可看闭环和 manual acceptance pack；第一版后跑窄验证并等待用户确认，确认后才 docs/history/archive/commit。
+- 文档/源码冲突：`STATUS.md`、`NEXT-STEPS.md`、archived plan 和源码不一致。期望：列冲突、选 source of truth、同步 designated docs，不把旧事实和新源码混合。
+- 确定性验证：用户问“现在是否通过”。期望：运行或引用脚本/命令结果和 Godot output scan，不凭模型回忆回答。
+- 历史索引化：项目入口堆积 completed GDD 历史。期望：`docs/INDEX.md`、quick context、`NEXT-STEPS.md` 只保留当前状态和索引链接；GDD 历史进入 `docs/history/gdd/`，提交批次进入 `docs/history/commits/`。
 
 ## 轻量化边界
 

@@ -16,10 +16,13 @@
 | 项目身份、当前集成场景、验证命令 | quick context / status | 下一位 agent 的 hot context |
 | 当前系统结构、runtime route、accepted behavior | `docs/current/` | 当前真相，不写长历史 |
 | 下一步任务 | `NEXT-STEPS.md` 或 active plan | 只保留可执行 next task |
-| 已完成任务和验收证据 | history / development log / changelog | 证据，不作为当前入口 |
+| 已完成 GDD 任务和验收证据 | `docs/history/gdd/INDEX.md` 和 `docs/history/gdd/GDD-*.md` | 唯一详细历史，不作为当前入口 |
+| 每次提交批次的变更证据 | `docs/history/commits/INDEX.md` 和 `docs/history/commits/YYYY-MM-DD-*.md` | commit closeout 记录 |
 | 参考项目或外部资料 | `docs/reference/INDEX.md` | 只作为 blueprint，不是本地真相 |
 
 ## 同步时机
+
+文档写入节奏先服从 `agent-execution-discipline.md`：玩家可见或主观内容未人工验收前，不反复同步 current/history/archive；用户确认后再一次性 closeout。
 
 必须同步：
 
@@ -39,14 +42,14 @@
 - 同一事实只保留一个 active owner；其他文档链接或摘要。
 - quick context 写“读哪里”和“当前阻塞”，不复制完整 plan。
 - status 写当前状态和下一步，不堆积已完成细节。
-- history 写日期、变更、验证、验收，不覆盖 current docs。
+- `docs/history/gdd/` 写 completed / abandoned GDD 的唯一详细文件和索引；`docs/history/commits/` 写每次提交批次的 changed files、验证、验收或免审理由，不覆盖 current docs。
 - archived plans 是过去证据，不要当作当前 scope 直接执行。
 
 ## 文档收尾最小清单
 
 - Update current docs：当前行为、scene route、owner、input/resource/signal contract。
 - Update plan/status：task status、readiness、verification、manual acceptance。
-- Update history：日期、changed files、commands、结果、用户验收或未验收。
+- Update history：GDD closeout 把唯一详细文件放入 `docs/history/gdd/` 并更新索引；提交批次写入 `docs/history/commits/YYYY-MM-DD-*.md`，包含日期、changed files、commands、结果、用户验收或免审理由、commit message。
 - Update next steps：只写下一步可执行 task 和是否 `pending` / `ready` / `escalated`。
 - Report key project docs and reference files used。
 

@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import re
+import shutil
 import sys
+import argparse
 from pathlib import Path
 
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
+sys.dont_write_bytecode = True
 
 
 EXPECTED_SKILL_NAME = "godot-game-dev-workflow"
@@ -51,6 +54,8 @@ REQUIRED_REFERENCE_PHRASES = {
         "Full Layout",
         "Hot Context",
         "Docs Owner",
+        "2DA-style indexed docs",
+        "GDD 存储规则",
     ],
     "references/spec-driven-gameplay-workflow.md": [
         "Requirement",
@@ -65,9 +70,27 @@ REQUIRED_REFERENCE_PHRASES = {
         "escalated",
         "Owned files / prohibited files",
         "manual playtest",
-        "Recommended tier",
-        "Selected tier",
+        "Agent selected tier",
+        "User confirmation",
         "Tier tradeoff",
+        "Reference research gate",
+    ],
+    "references/gameplay-implementation-plan-template.md": [
+        "Reference research",
+        "Sources checked",
+        "Adopted patterns",
+        "Rejected patterns",
+        "Local mapping",
+        "Open questions",
+    ],
+    "references/web-gameplay-reference-research.md": [
+        "联网",
+        "Sources checked",
+        "Adopted patterns",
+        "Rejected patterns",
+        "Local mapping",
+        "not needed",
+        "manual acceptance",
     ],
     "references/large-project-planning.md": [
         "Task ID",
@@ -148,12 +171,15 @@ REQUIRED_PHRASES = [
     "快速档",
     "标准档",
     "严格档",
-    "recommended tier",
-    "selected tier",
+    "agent selected tier",
+    "Reference research",
+    "web-gameplay-reference-research.md",
+    "同类成功游戏",
     "无需人工审查",
     "直接 commit",
     "exact controls",
     "保存读取步骤",
+    "2DA-style indexed docs",
 ]
 OPENAI_REQUIRED_TERMS = [
     "manage",
@@ -173,23 +199,52 @@ TEMPLATE_REQUIRED_PHRASES = {
     "assets/project-doc-templates/docs/current/AGENT-QUICK-CONTEXT.md": [
         "Godot version",
         "Main scene",
-        "Manual test scene",
+        "Run command",
         "Validation command",
-        "MCP/editor status",
         "Docs source of truth",
+        "docs/current/STATUS.md",
+        "Known blockers",
     ],
     "assets/project-doc-templates/docs/current/STATUS.md": [
-        "Godot version",
-        "Main scene",
         "Manual test scene",
-        "Validation command",
         "MCP/editor status",
         "Docs source of truth",
+        "AGENT-QUICK-CONTEXT.md",
+        "Pending acceptance",
+        "Last automated check",
+        "Last manual playtest",
+    ],
+    "assets/project-doc-templates/docs/reference/INDEX.md": [
+        "外部参考",
+        "blueprint",
+        "adopted pattern",
+        "local mapping",
     ],
 }
 INIT_SCRIPT_REQUIRED_PHRASES = ["--dry-run", "--check", "argparse"]
 DISALLOWED_DIRS = {"__pycache__"}
 DISALLOWED_SUFFIXES = {".pyc", ".pyo"}
+FORBIDDEN_TIER_PHRASES = [
+    "用户确认 selected tier",
+    "用户确认的档位",
+    "用户确认后再进入对应 plan depth",
+    "推荐快速档并等用户确认",
+    "推荐严格档并等用户确认",
+]
+SLIM_DOC_LIMITS = {
+    "docs/INDEX.md": 8,
+    "docs/current/AGENT-QUICK-CONTEXT.md": 10,
+    "docs/plans/NEXT-STEPS.md": 12,
+}
+REQUIRED_PROJECT_INDEXES = [
+    "docs/current/INDEX.md",
+    "docs/plans/INDEX.md",
+    "docs/plans/gdd/INDEX.md",
+    "docs/history/INDEX.md",
+    "docs/history/gdd/INDEX.md",
+    "docs/history/commits/INDEX.md",
+    "docs/reference/INDEX.md",
+]
 
 
 def frontmatter_fields(text: str) -> tuple[set[str], dict[str, str]]:
@@ -216,9 +271,68 @@ def find_generated_artifacts(root: Path) -> list[Path]:
     return sorted(set(generated))
 
 
+def find_slimming_issues(project_root: Path) -> list[str]:
+    issues: list[str] = []
+    if not project_root.is_dir():
+        return issues
+    if not (project_root / "project.godot").is_file():
+        issues.append(f"{project_root} is not a Godot project root")
+        return issues
+    for rel in REQUIRED_PROJECT_INDEXES:
+        if not (project_root / rel).is_file():
+            issues.append(f"missing {rel}")
+    archive_gdds = sorted((project_root / "docs" / "plans" / "archive").glob("GDD-*.md"))
+    history_gdds = sorted((project_root / "docs" / "history" / "gdd").glob("GDD-*.md"))
+    active_gdds = sorted((project_root / "docs" / "plans" / "gdd").glob("GDD-*.md"))
+    duplicate_names = sorted({path.name for path in archive_gdds} & {path.name for path in history_gdds})
+    if archive_gdds:
+        issues.append(f"docs/plans/archive contains {len(archive_gdds)} GDD files; expected 0")
+    if duplicate_names:
+        issues.append("GDD duplicated in archive and history: " + ", ".join(duplicate_names[:3]))
+    if active_gdds and any(path.name in {hist.name for hist in history_gdds} for path in active_gdds):
+        issues.append("active GDD also exists in docs/history/gdd")
+    for rel, max_completed_gdd_mentions in SLIM_DOC_LIMITS.items():
+        path = project_root / rel
+        if not path.is_file():
+            issues.append(f"missing {rel}")
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        mentions = len(re.findall(r"GDD-\d{3}", text))
+        has_history_index = "docs/history/gdd/INDEX.md" in text
+        if mentions > max_completed_gdd_mentions:
+            issues.append(f"{rel} has {mentions} GDD mentions; expected <= {max_completed_gdd_mentions}")
+        if rel != "docs/current/AGENT-QUICK-CONTEXT.md" and not has_history_index:
+            issues.append(f"{rel} does not link docs/history/gdd/INDEX.md")
+    return issues
+
+
 def main() -> int:
-    root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.cwd()
+    parser = argparse.ArgumentParser(description="Check the Godot game development workflow skill folder.")
+    parser.add_argument("root", nargs="?", default=".", help="Skill root directory")
+    parser.add_argument("--fix-generated-artifacts", action="store_true", help="Remove __pycache__ and pyc/pyo files before checking")
+    parser.add_argument("--project-root", help="Optional Godot project root for docs slimming checks")
+    args = parser.parse_args()
+
+    root = Path(args.root)
     root = root.resolve()
+
+    if args.fix_generated_artifacts:
+        for rel_dir in ("scripts", "tests"):
+            base = (root / rel_dir).resolve()
+            try:
+                base.relative_to(root)
+            except ValueError:
+                continue
+
+            pycache = base / "__pycache__"
+            if pycache.exists():
+                shutil.rmtree(pycache, ignore_errors=True)
+
+            for generated_file in list(base.rglob("*.pyc")) + list(base.rglob("*.pyo")):
+                try:
+                    generated_file.unlink(missing_ok=True)
+                except OSError:
+                    pass
     skill = root / "SKILL.md"
     if not skill.is_file():
         print(f"Missing SKILL.md: {root}")
@@ -234,8 +348,15 @@ def main() -> int:
     index_text = index.read_text(encoding="utf-8", errors="replace") if index.is_file() else ""
     reference_files = sorted((root / "references").glob("*.md")) if (root / "references").is_dir() else []
     indexed_reference_names = set(INDEX_REF_RE.findall(index_text))
+    project_root = Path(args.project_root).resolve() if args.project_root else root.parent / "2da"
 
     generated_artifacts = find_generated_artifacts(root)
+    forbidden_tier_hits = [
+        phrase
+        for phrase in FORBIDDEN_TIER_PHRASES
+        if phrase in text or any(phrase in path.read_text(encoding="utf-8", errors="replace") for path in reference_files)
+    ]
+    slimming_issues = find_slimming_issues(project_root) if project_root.exists() else []
 
     checks: list[tuple[str, bool]] = [
         ("frontmatter present", bool(fields)),
@@ -256,8 +377,20 @@ def main() -> int:
         (
             "no generated cache files"
             if not generated_artifacts
-            else f"no generated cache files ({', '.join(str(path) for path in generated_artifacts[:5])})",
+            else f"no generated cache files ({', '.join(str(path) for path in generated_artifacts[:5])}); run --fix-generated-artifacts to clean",
             not generated_artifacts,
+        ),
+        (
+            "no mandatory user tier confirmation phrasing"
+            if not forbidden_tier_hits
+            else "mandatory user tier confirmation phrasing: " + ", ".join(forbidden_tier_hits),
+            not forbidden_tier_hits,
+        ),
+        (
+            "project docs slimming checks"
+            if not slimming_issues
+            else "project docs slimming checks: " + "; ".join(slimming_issues[:5]),
+            not slimming_issues,
         ),
         ("references dir", (root / "references").is_dir()),
         ("scripts dir", (root / "scripts").is_dir()),

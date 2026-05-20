@@ -2,6 +2,8 @@
 
 维护本 skill 或刷新外部 workflow idea 时读本文件。这里记录来源和用途，不把完整外部仓库 vendor 进 skill；除非未来确实需要某个可复用资产，且 license 允许复制。
 
+REFRESH_DATE: 2026-05-17
+
 ## AI Workflow and Memory References
 
 | Repository | Local snapshot used | Purpose in this skill |
@@ -21,7 +23,16 @@
 
 ## Refresh Rules
 
+- 刷新方式是手动 checklist，不做自动联网更新。
+- 建议每个 milestone closeout 或 skill 结构大改前检查一次；普通 gameplay 任务不需要刷新。
 - 优先更新本 manifest 的 upstream URL 和 commit snapshot，不复制完整仓库。
 - 把外部 idea 转成 Godot-specific checks、scripts、references 或 templates。
 - `SKILL.md` 保持 router；详细导入指导放进 focused reference files。
 - 引入任何外部工具或 Godot 行为前，先验证该 claim，再写入 core workflow。
+
+## Manual Refresh Checklist
+
+- 确认每个 repository 仍可访问，并记录最新可用 commit。
+- 只采纳能转成本 skill 规则、脚本、模板或 quality gate 的变化。
+- 检查 license 或来源限制；不能确认时只保留链接和用途，不复制内容。
+- 更新 `REFRESH_DATE`，并在相关 reference 中写明 adopted / rejected reason。

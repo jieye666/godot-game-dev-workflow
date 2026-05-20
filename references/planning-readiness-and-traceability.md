@@ -13,15 +13,16 @@ Readiness states：pending、ready、escalated。每个 task 必须能追溯到 
 
 正式计划前记录档位选择，避免小任务过度计划或大任务验证不足。
 
-- Recommended tier：agent 推荐的 `快速档` / `标准档` / `严格档`。
-- Reason：推荐理由，至少覆盖 scope、风险、验证成本和是否涉及 gameplay-visible behavior。
-- Selected tier：用户确认的档位；如果用户已明确指定档位，记录该选择并跳过重复询问。
+- Agent selected tier：agent 自行选择的 `快速档` / `标准档` / `严格档`。
+- Reason：选择理由，至少覆盖 scope、风险、验证成本和是否涉及 gameplay-visible behavior。
+- User confirmation：默认不需要；只有 scope 不清、高风险、需要人工取舍或 task 进入 `escalated` 时才询问用户。
 - Tier tradeoff：一句话说明为什么不用更轻或更重的档位。
+- Reference research gate：Boss、movement feel、camera/readability、route pacing、UI flow 等玩家可见设计或主观体验进入正式计划前，必须联网或读取本地 reference，记录 sources checked、adopted patterns、rejected patterns 和 local mapping；纯本地 bug、save/load、docs、tooling、代码事实审查可写免除理由。
 
 ## Readiness 判定
 
-- `pending`：目标、owned files、依赖、验证、manual acceptance 任一关键项缺失。只能补计划、查证据、拆任务，不直接改 gameplay code。
-- `ready`：需求来源明确，当前代码和 docs 已核对，owned/prohibited files 明确，验证方式可执行，manual gap 已记录且不阻塞实现。
+- `pending`：目标、owned files、依赖、必要参考调研、验证、manual acceptance 任一关键项缺失。只能补计划、查证据、拆任务，不直接改 gameplay code。
+- `ready`：需求来源明确，当前代码和 docs 已核对，玩家可见系统已有 reference research 或免除理由，owned/prohibited files 明确，验证方式可执行，manual gap 已记录且不阻塞实现。
 - `escalated`：范围或风险需要用户接受，例如必须改 non-owned files、架构取舍会影响后续、缺少可运行验证、manual acceptance 是唯一验收。用户接受后才能执行。
 
 ## Traceability 最小字段
@@ -29,7 +30,8 @@ Readiness states：pending、ready、escalated。每个 task 必须能追溯到 
 - Task ID 或短名。
 - Requirement/design source：用户原话、GDD、active plan、bug report 或 reference file。
 - Current evidence：读过的 docs、scene、script、test 或 log。
-- Tier：recommended tier、selected tier、reason。
+- Reference research：sources checked、adopted/rejected patterns、local mapping；不需要时写具体免除理由。
+- Tier：agent selected tier、reason、tradeoff；如用户确认过，记录确认点。
 - Owned files / prohibited files。
 - Verification：自动命令、Godot scene、log scan、manual playtest。
 - Status：`pending` / `ready` / `escalated`。
@@ -38,6 +40,7 @@ Readiness states：pending、ready、escalated。每个 task 必须能追溯到 
 
 - 每个 requirement 至少有一个 task 或明确 non-goal。
 - 每个 task 至少指向一个 requirement/design source。
+- 每个 Boss、movement feel、camera/readability、route pacing、UI flow 等主观体验计划至少有一个同类游戏/开源实现参考，标准档通常 2 个，严格档通常 3 个以上；否则降为 `pending` 或写明免除理由。
 - 每个 gameplay-visible change 必须有 manual acceptance 步骤，除非任务明确是 docs/script/tooling。
 - 每个 verification gap 必须写成风险，不用“后续再看”代替。
 

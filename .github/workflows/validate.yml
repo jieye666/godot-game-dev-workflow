@@ -5,13 +5,17 @@ on:
   pull_request:
 
 jobs:
-  validate:
+  validate-linux:
     runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Python tests
+        run: python -m unittest discover -s tests -p "test*.py"
       - name: Skill self-check
         run: python scripts/skill_self_check.py .
       - name: Project docs smoke test
@@ -21,3 +25,28 @@ jobs:
           python scripts/init_godot_ai_docs.py "$tmp"
           python scripts/init_godot_ai_docs.py "$tmp" --check
           python scripts/audit_godot_docs.py "$tmp"
+
+  validate-windows:
+    runs-on: windows-latest
+    env:
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: utf-8
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Python tests
+        run: python -m unittest discover -s tests -p "test*.py"
+      - name: Skill self-check
+        run: python scripts/skill_self_check.py .
+      - name: Project docs smoke test
+        shell: pwsh
+        run: |
+          $tmp = Join-Path $env:RUNNER_TEMP "godot-docs-smoke"
+          New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+          Set-Content -Path (Join-Path $tmp "project.godot") -Encoding UTF8 -Value "; Engine configuration file`nconfig_version=5`n"
+          python scripts/init_godot_ai_docs.py $tmp
+          python scripts/init_godot_ai_docs.py $tmp --check
+          python scripts/audit_godot_docs.py $tmp

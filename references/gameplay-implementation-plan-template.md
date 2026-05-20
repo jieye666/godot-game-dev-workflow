@@ -9,6 +9,7 @@
 ```text
 Goal:
 Current evidence:
+Reference research:
 Owned files:
 Prohibited files:
 Risk:
@@ -30,6 +31,12 @@ User intent:
 Non-goals:
 Requirement/design source:
 Current evidence:
+Reference research:
+  - Sources checked:
+  - Adopted patterns:
+  - Rejected patterns:
+  - Local mapping:
+  - Open questions:
 Owned files:
 Prohibited files:
 System owner:
@@ -56,7 +63,7 @@ Implementation Readiness:
 ## Readiness Quick Check
 
 - `pending`：目标、owned files、evidence、verification、manual acceptance 有缺口。
-- `ready`：scope 可执行，文件边界清楚，验证路径可运行，manual gap 已记录。
+- `ready`：scope 可执行，文件边界清楚，验证路径可运行，manual gap 已记录；玩家可见系统已有 `Reference research` 或明确免除理由。
 - `escalated`：需要用户接受 non-owned files、架构取舍、验证不可用或 manual-only 验收。
 
 ## 中文规范

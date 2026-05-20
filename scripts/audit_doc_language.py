@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import re
 import sys
 from pathlib import Path
@@ -41,6 +42,15 @@ ALLOWED_TERMS = {
     "UI",
 }
 WORD_RE = re.compile(r"[A-Za-z]{3,}")
+CHINESE_RE = re.compile(r"[\u4e00-\u9fff]")
+
+
+DEFAULT_HEADING_WORD_LIMIT = 5
+DEFAULT_SENTENCE_WORD_LIMIT = 14
+DEFAULT_STREAK_WORD_LIMIT = 8
+STRICT_HEADING_WORD_LIMIT = 3
+STRICT_SENTENCE_WORD_LIMIT = 9
+STRICT_STREAK_WORD_LIMIT = 6
 
 
 def strip_technical_text(line: str) -> str:
@@ -50,25 +60,55 @@ def strip_technical_text(line: str) -> str:
     return line
 
 
-def audit_file(path: Path) -> list[str]:
+def english_words_after_technical_strip(line: str) -> list[str]:
+    return WORD_RE.findall(strip_technical_text(line))
+
+
+def chinese_char_count(line: str) -> int:
+    return len(CHINESE_RE.findall(line))
+
+
+def audit_file(path: Path, *, strict: bool = False) -> list[str]:
     issues: list[str] = []
     in_code_block = False
+    english_streak: list[tuple[int, str]] = []
+    heading_limit = STRICT_HEADING_WORD_LIMIT if strict else DEFAULT_HEADING_WORD_LIMIT
+    sentence_limit = STRICT_SENTENCE_WORD_LIMIT if strict else DEFAULT_SENTENCE_WORD_LIMIT
+    streak_limit = STRICT_STREAK_WORD_LIMIT if strict else DEFAULT_STREAK_WORD_LIMIT
+
     for lineno, raw in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
         line = raw.strip()
         if line.startswith("```"):
             in_code_block = not in_code_block
+            english_streak.clear()
             continue
         if in_code_block or not line:
+            english_streak.clear()
             continue
 
-        stripped = strip_technical_text(line)
-        words = WORD_RE.findall(stripped)
-        chinese_chars = re.findall(r"[\u4e00-\u9fff]", line)
+        words = english_words_after_technical_strip(line)
+        chinese_chars = chinese_char_count(line)
 
-        if line.startswith("#") and len(words) >= 3 and not chinese_chars:
-            issues.append(f"{path}:{lineno}: English-looking heading: {line}")
-        elif len(words) >= 9 and len(chinese_chars) < 3:
+        if line.startswith("#"):
+            english_streak.clear()
+            if len(words) >= heading_limit and not chinese_chars:
+                issues.append(f"{path}:{lineno}: English-looking heading: {line}")
+            continue
+
+        if len(words) >= sentence_limit and chinese_chars < 3:
             issues.append(f"{path}:{lineno}: English-looking sentence: {line[:140]}")
+            english_streak.clear()
+        elif len(words) >= streak_limit and chinese_chars < 3:
+            english_streak.append((lineno, line))
+            if len(english_streak) >= 3:
+                first_line, first_text = english_streak[0]
+                issues.append(
+                    f"{path}:{first_line}: English-looking paragraph starts here: {first_text[:140]}"
+                )
+                english_streak.clear()
+        else:
+            english_streak.clear()
+
     return issues
 
 
@@ -85,19 +125,33 @@ def markdown_files(root: Path) -> list[Path]:
     return sorted(files)
 
 
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Audit Markdown/YAML files for the Chinese-first documentation convention.",
+    )
+    parser.add_argument("paths", nargs="+", help="Files or folders to audit")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Fail shorter English-only headings and shorter English-looking sentences.",
+    )
+    return parser.parse_args(argv)
+
+
 def main() -> int:
     if len(sys.argv) < 2:
-        print("Usage: audit_doc_language.py <path> [<path> ...]")
+        print("Usage: audit_doc_language.py [--strict] <path> [<path> ...]")
         return 2
 
+    args = parse_args(sys.argv[1:])
     issues: list[str] = []
-    for raw in sys.argv[1:]:
+    for raw in args.paths:
         root = Path(raw).resolve()
         if not root.exists():
             issues.append(f"{root}: path does not exist")
             continue
         for file_path in markdown_files(root):
-            issues.extend(audit_file(file_path))
+            issues.extend(audit_file(file_path, strict=args.strict))
 
     if issues:
         print("Chinese-first documentation audit failed:")

@@ -14,7 +14,9 @@
 - `spec-driven-gameplay-workflow.md`：需求模糊、跨系统、需要先拆 Requirement / Design / Plan / Task 时加载。
 - `large-project-planning.md`：大功能、原型、里程碑、多会话任务拆分时加载；不要用于 one-file patch。
 - `planning-readiness-and-traceability.md`：从现有 plan 准备实现、判断 `pending` / `ready` / `escalated`、检查 coverage gaps 时加载。
+- `agent-execution-discipline.md`：implementation、玩家可见 polish、流程复盘、文档收尾或提交前加载；约束 task shape、最小闭环、暂停点、验证节奏和文档时机。
 - `gameplay-implementation-plan-template.md`：需要写 Task Plan 或 Compact Patch Plan 时加载。
+- `web-gameplay-reference-research.md`：制定玩家可见 gameplay、关卡、Boss、UI flow、movement、combat、save/load、unlock 等计划前加载，先查同类成功例子再本地化。
 - `implementation-contracts.md`：Task Plan 涉及 scene/script/signal/resource/InputMap/Autoload/ownership 时加载。
 - `multi-agent-gameplay-plan.md`：只有并行能减少冲突且 owned-file boundaries 清楚时加载。
 

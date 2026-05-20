@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | Hot | project root、当前 active scene、验证命令、当前 plan、常见陷阱 | 每次进入项目先读 |
 | Warm | system docs、current status、NEXT-STEPS、reference index | 当前任务相关时读 |
-| Cold | archived plans、history、external references、old memory | 需要证据或追溯决策时读 |
+| Cold | archived plans、`docs/history/gdd/`、`docs/history/commits/`、external references、old memory | 需要证据或追溯决策时读 |
 
 ## Token 预算规则
 
@@ -34,11 +34,13 @@
 | 文件类型 | 内容 | 不放什么 |
 | --- | --- | --- |
 | `AGENTS.md` / project AI rules | 入口规则、语言规范、验证入口、不可破坏边界 | 完整历史和长计划 |
-| `docs/INDEX.md` | docs router、source-of-truth 指向、常用入口 | 重复身份事实 |
-| `docs/current/AGENT-QUICK-CONTEXT.md` | 每次进入项目必读 hot context | 长日志和过期方案 |
+| `docs/INDEX.md` | docs router、source-of-truth 指向、常用入口、历史索引链接 | 重复身份事实和 completed GDD 长列表 |
+| `docs/current/AGENT-QUICK-CONTEXT.md` | 每次进入项目必读 hot context | 长日志、completed GDD 串和过期方案 |
 | `docs/current/STATUS.md` | 当前系统状态、验证命令、验收状态 | 过去尝试的细节 |
 | `docs/plans/NEXT-STEPS.md` | 下一批可执行任务和 readiness | 已完成任务堆积 |
-| `docs/history/development-log.md` | 日期、改动、验证、人工验收证据 | 当前状态的唯一真相 |
+| `docs/history/gdd/INDEX.md` | 已完成/废弃 GDD 历史索引 | 当前状态的唯一真相 |
+| `docs/history/commits/INDEX.md` | 提交批次记录索引 | 当前任务入口 |
+| `docs/history/development-log.md` | 旧总日志和历史证据 | 当前状态的唯一真相 |
 
 ## Reference Project Intake
 
@@ -56,9 +58,9 @@
 
 ## 写文档时降噪
 
-- quick context 写热信息和下一步，不写完整历史。
+- quick context 写热信息和下一步，不写完整历史或 completed GDD 串。
 - current docs 写当前结构和 contract，不写探索过程。
-- history 写证据和验收，不复制 current docs。
+- `docs/history/gdd/` 保存 completed / abandoned GDD 的唯一详细文件和索引，`docs/history/commits/` 写每次提交批次证据，不复制 current docs。
 - task plan 写可执行字段，不贴长日志。
 
 ## Closeout Memory Extraction

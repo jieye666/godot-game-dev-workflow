@@ -94,9 +94,10 @@ def main() -> int:
     for path in skipped:
         print(f"  = {path}")
     print("Complete these fields after initialization:")
-    print("  - docs/current/AGENT-QUICK-CONTEXT.md: Godot version, main scene, current milestone, validation")
-    print("  - docs/current/STATUS.md: implemented systems, tool status, verification commands")
+    print("  - docs/current/AGENT-QUICK-CONTEXT.md: Godot version, main scene, run command, blockers")
+    print("  - docs/current/STATUS.md: manual test scene, implemented systems, pending acceptance, verification records")
     print("  - docs/plans/NEXT-STEPS.md: active task queue and readiness")
+    print("  - docs/reference/INDEX.md: external/reference project routing when needed")
     return 2 if args.check and missing else 0
 
 
