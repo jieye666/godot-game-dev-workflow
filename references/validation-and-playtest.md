@@ -5,6 +5,7 @@
 ## 验证分层和时间成本
 
 - Godot headless 启动、全量 smoke、完整 validation 和失败后定位通常是主要耗时点；不要在每个小步骤都默认跑完整验证。
+- implementation 中的验证节奏先服从 `agent-execution-discipline.md`：开发中跑窄验证，用户验收 closeout、最终收尾或提交前再跑完整 validation。
 - 快速档：开发中跑相关 parser、unit、单 scene smoke 或最小命令；收尾报告说明未跑完整 validation 的原因。
 - 标准档：实现中跑相关 smoke 或聚焦测试；影响 gameplay-visible behavior 时给 manual playtest 步骤；收尾按项目风险决定是否跑完整 validation。
 - 严格档：跨系统、架构变更、multi-agent integration、提交前收尾或用户手动验收 closeout，必须跑项目完整 validation，例如 `scripts\validate-project.ps1`。
@@ -22,6 +23,7 @@
 - 把问题拆成单独假设：Godot path、runner timeout、exit code、输出扫描、headless 残留、测试脚本真实失败、文档审计失败分别验证。
 - 先用单个 smoke scene 证明 runner 可以退出、拿到 exit code、写入日志且无错误文本，再跑全量 smoke 和完整 validation。
 - 如果需要改 runner，先保留或新增最小回归方式，确认 timeout 真的能结束并清理本项目 headless 进程。
+- `check_scene_references.py` 只应扫描当前项目源码；`.tmp`、`.git`、`.godot`、`reference` 等临时目录或参考项目目录必须跳过，避免把外部参考代码噪声当作当前项目缺口。
 
 ## Smoke Test 进程清理
 
