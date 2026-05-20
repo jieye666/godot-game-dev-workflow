@@ -11,15 +11,27 @@ NODE_RE = re.compile(r'^\[node name="([^"]+)"')
 DOLLAR_RE = re.compile(r'(?<![\w])\$([A-Za-z0-9_/%.\-]+)')
 UNIQUE_RE = re.compile(r'(?<![\w])%([A-Za-z0-9_]+)')
 STRING_RE = re.compile(r'("([^"\\]|\\.)*"|\'([^\'\\]|\\.)*\')')
+SKIPPED_DIRS = {".git", ".godot", ".tmp", "__pycache__", "reference"}
 
 
 def strip_string_literals(line: str) -> str:
     return STRING_RE.sub('""', line)
 
 
+def iter_project_files(root: Path, pattern: str):
+    for path in root.rglob(pattern):
+        try:
+            rel_parts = path.relative_to(root).parts
+        except ValueError:
+            continue
+        if any(part in SKIPPED_DIRS for part in rel_parts):
+            continue
+        yield path
+
+
 def collect_scene_nodes(root: Path) -> set[str]:
     names: set[str] = set()
-    for scene in root.rglob("*.tscn"):
+    for scene in iter_project_files(root, "*.tscn"):
         text = scene.read_text(encoding="utf-8", errors="replace")
         for line in text.splitlines():
             match = NODE_RE.match(line)
@@ -30,7 +42,7 @@ def collect_scene_nodes(root: Path) -> set[str]:
 
 def collect_script_refs(root: Path) -> list[tuple[Path, int, str, str]]:
     refs: list[tuple[Path, int, str, str]] = []
-    for script in root.rglob("*.gd"):
+    for script in iter_project_files(root, "*.gd"):
         text = script.read_text(encoding="utf-8", errors="replace")
         for lineno, line in enumerate(text.splitlines(), start=1):
             code_line = strip_string_literals(line)
