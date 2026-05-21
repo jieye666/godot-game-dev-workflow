@@ -7,6 +7,7 @@ import re
 import shutil
 import sys
 import argparse
+import json
 from pathlib import Path
 
 
@@ -192,6 +193,7 @@ REQUIRED_PHRASES = [
     "保存读取步骤",
     "2DA-style indexed docs",
     "project-organization-health.md",
+    "install_slash_skills.py",
 ]
 OPENAI_REQUIRED_TERMS = [
     "manage",
@@ -234,6 +236,21 @@ TEMPLATE_REQUIRED_PHRASES = {
     ],
 }
 INIT_SCRIPT_REQUIRED_PHRASES = ["--dry-run", "--check", "argparse"]
+SLASH_WRAPPER_NAMES = [
+    "godot-intake",
+    "godot-docs",
+    "godot-plan",
+    "godot-execution",
+    "godot-reference-research",
+    "godot-scene-signal",
+    "godot-gdscript",
+    "godot-validation",
+    "godot-closeout",
+    "godot-failure-debug",
+    "godot-org-health",
+    "godot-mcp-editor",
+    "godot-skill-maintenance",
+]
 DISALLOWED_DIRS = {"__pycache__"}
 DISALLOWED_SUFFIXES = {".pyc", ".pyo"}
 FORBIDDEN_TIER_PHRASES = [
@@ -368,6 +385,47 @@ def find_organization_warnings(project_root: Path) -> list[str]:
     return warnings
 
 
+def load_slash_manifest(root: Path) -> tuple[list[dict[str, object]], list[str]]:
+    path = root / "assets" / "slash-skill-wrappers" / "manifest.json"
+    if not path.is_file():
+        return [], [f"missing {path.relative_to(root)}"]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [], [f"invalid slash wrapper manifest: {exc}"]
+    if not isinstance(data, list):
+        return [], ["slash wrapper manifest is not a list"]
+    issues: list[str] = []
+    wrappers: list[dict[str, object]] = []
+    for item in data:
+        if not isinstance(item, dict):
+            issues.append("slash wrapper entry is not an object")
+            continue
+        wrappers.append(item)
+        name = str(item.get("name", ""))
+        if not re.fullmatch(r"[a-z0-9-]+", name):
+            issues.append(f"invalid slash wrapper name {name!r}")
+        for key in ("display_name", "short_description", "description", "references", "task"):
+            if key not in item:
+                issues.append(f"{name} missing {key}")
+        refs = item.get("references", [])
+        if not isinstance(refs, list) or not refs:
+            issues.append(f"{name} has no references")
+            continue
+        for ref in refs:
+            ref_path = root / "references" / str(ref)
+            if not ref_path.is_file():
+                issues.append(f"{name} missing reference {ref}")
+    names = [str(item.get("name", "")) for item in wrappers]
+    missing_names = sorted(set(SLASH_WRAPPER_NAMES) - set(names))
+    extra_names = sorted(set(names) - set(SLASH_WRAPPER_NAMES))
+    if missing_names:
+        issues.append("missing slash wrappers: " + ", ".join(missing_names))
+    if extra_names:
+        issues.append("unexpected slash wrappers: " + ", ".join(extra_names))
+    return wrappers, issues
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check the Godot game development workflow skill folder.")
     parser.add_argument("root", nargs="?", default=".", help="Skill root directory")
@@ -406,11 +464,14 @@ def main() -> int:
     openai_text = openai_yaml.read_text(encoding="utf-8", errors="replace") if openai_yaml.is_file() else ""
     init_script = root / "scripts" / "init_godot_ai_docs.py"
     init_script_text = init_script.read_text(encoding="utf-8", errors="replace") if init_script.is_file() else ""
+    slash_install_script = root / "scripts" / "install_slash_skills.py"
+    slash_install_text = slash_install_script.read_text(encoding="utf-8", errors="replace") if slash_install_script.is_file() else ""
     index = root / "references" / "index.md"
     index_text = index.read_text(encoding="utf-8", errors="replace") if index.is_file() else ""
     reference_files = sorted((root / "references").glob("*.md")) if (root / "references").is_dir() else []
     indexed_reference_names = set(INDEX_REF_RE.findall(index_text))
     project_root = Path(args.project_root).resolve() if args.project_root else root.parent / "2da"
+    slash_wrappers, slash_manifest_issues = load_slash_manifest(root)
 
     generated_artifacts = find_generated_artifacts(root)
     forbidden_tier_hits = [
@@ -455,6 +516,14 @@ def main() -> int:
             else "project docs slimming checks: " + "; ".join(slimming_issues[:5]),
             not slimming_issues,
         ),
+        (
+            "slash wrapper manifest"
+            if not slash_manifest_issues
+            else "slash wrapper manifest: " + "; ".join(slash_manifest_issues[:5]),
+            not slash_manifest_issues,
+        ),
+        ("scripts/install_slash_skills.py", slash_install_script.is_file()),
+        ("install_slash_skills.py dry-run/check", "--dry-run" in slash_install_text and "--check" in slash_install_text),
         ("references dir", (root / "references").is_dir()),
         ("scripts dir", (root / "scripts").is_dir()),
         ("assets templates", (root / "assets" / "project-doc-templates").is_dir()),
@@ -479,6 +548,8 @@ def main() -> int:
 
     for phrase in INIT_SCRIPT_REQUIRED_PHRASES:
         checks.append((f"scripts/init_godot_ai_docs.py contains {phrase}", phrase in init_script_text))
+    for name in SLASH_WRAPPER_NAMES:
+        checks.append((f"slash wrapper {name}", any(str(item.get("name", "")) == name for item in slash_wrappers)))
 
     for rel in sorted(set(REF_RE.findall(text))):
         checks.append((rel, (root / rel).is_file()))

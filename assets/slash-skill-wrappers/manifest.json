@@ -1,0 +1,106 @@
+[
+  {
+    "name": "godot-intake",
+    "display_name": "Godot Intake / Godot 入场",
+    "short_description": "Enter a Godot project through project.godot, quick context, docs index, and current status.",
+    "description": "Use when the user explicitly invokes Godot project intake, project entry, context loading, identity checks, root detection, or low-token onboarding for an existing Godot project.",
+    "references": ["context-memory-strategy.md", "game-project-doc-structure.md", "project-doc-workflow.md"],
+    "task": "确认真实 Godot 项目根，读取 hot context 和 docs router，再按任务打开最小 current/status/next-step 文件。"
+  },
+  {
+    "name": "godot-docs",
+    "display_name": "Godot Docs / Godot 文档",
+    "short_description": "Clean, route, audit, or synchronize Godot project docs without duplicating truth.",
+    "description": "Use when the user explicitly invokes Godot docs cleanup, docs routing, Chinese-first documentation, source-of-truth repair, current/history/next-steps synchronization, or indexed documentation maintenance.",
+    "references": ["project-doc-workflow.md", "game-project-doc-structure.md", "context-memory-strategy.md"],
+    "task": "按 source of truth 修复 docs/current、docs/plans、docs/history 和 docs/reference 的职责边界，避免重复事实。"
+  },
+  {
+    "name": "godot-plan",
+    "display_name": "Godot Plan / Godot 计划",
+    "short_description": "Create ready-to-implement Godot gameplay plans with tier, readiness, contracts, and verification.",
+    "description": "Use when the user explicitly invokes Godot planning, GDD planning, task breakdown, readiness review, implementation contracts, milestone slicing, or plan quality checks before implementation.",
+    "references": ["agent-execution-discipline.md", "large-project-planning.md", "planning-readiness-and-traceability.md", "gameplay-implementation-plan-template.md", "implementation-contracts.md"],
+    "task": "先判断 task shape 和档位，再写可执行 plan、owned files、verification、manual acceptance 和 readiness。"
+  },
+  {
+    "name": "godot-execution",
+    "display_name": "Godot Execution / Godot 执行纪律",
+    "short_description": "Keep Godot implementation bounded with task shape, minimal loop, pause points, and verification rhythm.",
+    "description": "Use when the user explicitly invokes Godot execution discipline, implementation flow, scope control, side-issue handling, validation rhythm, or process correction during a Godot task.",
+    "references": ["agent-execution-discipline.md", "planning-readiness-and-traceability.md"],
+    "task": "约束 task shape、最小闭环、暂停点、side issue 分类、验证节奏和文档同步时机。"
+  },
+  {
+    "name": "godot-reference-research",
+    "display_name": "Godot Reference Research / Godot 参考研究",
+    "short_description": "Research player-visible gameplay references before planning feel, route, UI, Boss, or pacing work.",
+    "description": "Use when the user explicitly invokes Godot reference research, external gameplay references, successful game examples, open-source implementation comparison, Boss design, movement feel, UI flow, camera readability, or route pacing references.",
+    "references": ["web-gameplay-reference-research.md", "gameplay-implementation-plan-template.md"],
+    "task": "为玩家可见或主观体验计划查 2-4 个同类成功例子或可靠实现，并转成本项目 scope、risk、validation 和 non-goal。"
+  },
+  {
+    "name": "godot-scene-signal",
+    "display_name": "Godot Scene Signal / Godot 场景信号",
+    "short_description": "Check Godot scene tree, node paths, signals, resources, InputMap, and Autoload contracts.",
+    "description": "Use when the user explicitly invokes Godot scene/signal checks, node path validation, resource ownership, InputMap or Autoload review, scene wiring, or .tscn contract inspection.",
+    "references": ["scene-signal-resource-checklist.md", "implementation-contracts.md", "godot-4-gdscript-rules.md"],
+    "task": "先读真实 .tscn / .gd，再确认 node path、sender/receiver/payload、resource instance、InputMap 和 Autoload 边界。"
+  },
+  {
+    "name": "godot-gdscript",
+    "display_name": "Godot GDScript / Godot 脚本",
+    "short_description": "Review or write Godot 4 GDScript with API, ownership, runtime path, and code-quality constraints.",
+    "description": "Use when the user explicitly invokes Godot GDScript rules, script review, Godot 4 API checks, gameplay code quality, script contracts, runtime-path debugging, or code-shape planning.",
+    "references": ["godot-4-gdscript-rules.md", "extensible-gameplay-architecture.md", "common-failure-modes.md"],
+    "task": "按 Godot 4 API、script contract、ownership、extension point 和 visible runtime path 审查或计划代码。"
+  },
+  {
+    "name": "godot-validation",
+    "display_name": "Godot Validation / Godot 验证",
+    "short_description": "Run or plan Godot validation, smoke tests, output scans, and manual playtest handoff.",
+    "description": "Use when the user explicitly invokes Godot validation, smoke tests, manual playtest, output scanning, validation gates, failure logs, or completion checks before handoff.",
+    "references": ["validation-and-playtest.md", "common-failure-modes.md", "session-closeout-sync.md"],
+    "task": "分开自动验证和 manual playtest，扫描 Godot ERROR / SCRIPT ERROR / push_error，并输出可复测步骤。"
+  },
+  {
+    "name": "godot-closeout",
+    "display_name": "Godot Closeout / Godot 收尾",
+    "short_description": "Close out Godot work with docs sync, history, next steps, validation evidence, and commit policy.",
+    "description": "Use when the user explicitly invokes Godot closeout, session handoff, docs/history sync, commit preparation, manual acceptance recording, milestone handoff, or next-step cleanup.",
+    "references": ["session-closeout-sync.md", "project-doc-workflow.md", "validation-and-playtest.md"],
+    "task": "同步 current/status/history/next steps，记录验证、人工验收或免审理由，并按项目 policy 决定 commit。"
+  },
+  {
+    "name": "godot-failure-debug",
+    "display_name": "Godot Failure Debug / Godot 失败诊断",
+    "short_description": "Diagnose Godot behavior that did not change, validation failures, runtime-path issues, and stale docs.",
+    "description": "Use when the user explicitly invokes Godot failure debugging, behavior did not change, smoke failure diagnosis, visible runtime path checks, stale scene/script/resource routing, or validation mismatch triage.",
+    "references": ["common-failure-modes.md", "scene-signal-resource-checklist.md", "validation-and-playtest.md"],
+    "task": "优先检查 played scene、attached script、main route、resource instance、signal route 和验证输出，而不是只补测试。"
+  },
+  {
+    "name": "godot-org-health",
+    "display_name": "Godot Org Health / Godot 组织健康",
+    "short_description": "Review Godot docs, main scene scripts, scenes, and smoke tests for organization efficiency risks.",
+    "description": "Use when the user explicitly invokes Godot organization health, project organization review, docs bloat review, large main_game.gd or smoke test warning review, roadmap slimming, or low-token structure cleanup.",
+    "references": ["project-organization-health.md", "project-doc-workflow.md", "context-memory-strategy.md"],
+    "task": "检查 active docs 是否吸历史，以及主场景脚本、scene、smoke test 是否需要按 owner / route / assertion family 拆分。"
+  },
+  {
+    "name": "godot-mcp-editor",
+    "display_name": "Godot MCP Editor / Godot MCP 编辑器",
+    "short_description": "Use Godot MCP/editor evidence alongside file evidence and manual acceptance boundaries.",
+    "description": "Use when the user explicitly invokes Godot MCP, editor workflow, tool evidence, file evidence, editor validation, project metadata checks, or MCP-assisted Godot project inspection.",
+    "references": ["mcp-and-editor-workflow.md", "validation-and-playtest.md"],
+    "task": "区分 MCP/editor tool evidence、file evidence 和 manual acceptance，不用工具输出替代源码或场景真相。"
+  },
+  {
+    "name": "godot-skill-maintenance",
+    "display_name": "Godot Skill Maintenance / Godot Skill 维护",
+    "short_description": "Maintain the Godot workflow skill, references, wrappers, scripts, metadata, and validation gates.",
+    "description": "Use when the user explicitly invokes Godot skill maintenance, skill update, workflow rule changes, wrapper skill installation, metadata sync, self-check updates, or external workflow material review.",
+    "references": ["skill-quality-gate.md", "external-repositories.md", "project-organization-health.md"],
+    "task": "保持 SKILL.md 精简、reference 可路由、scripts 可验证、metadata 同步，并运行 skill self-check。"
+  }
+]

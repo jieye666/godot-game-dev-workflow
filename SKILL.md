@@ -17,6 +17,8 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 `SKILL.md` 是路由器，详细规则放在 `references/`。新增或更新文档、docs sync、commit message 和面向人查看的说明默认中文；路径、命令、API、Godot 标识符、GDD 编号、文件名和专有名词保持英文。
 
+如果用户想主动调用内部“小技能”，运行 `scripts/install_slash_skills.py` 安装 thin slash wrappers。Wrappers 只提供 `/godot-plan`、`/godot-docs` 等显式入口；规则真相仍回到本 skill 和对应 references。
+
 ## AI Failure Prevention Gate
 
 - 写代码前先说明 assumption、scope、success criteria；不确定时读 source 或 reference，不用模型猜。
@@ -96,6 +98,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 | 行为没变或验证失败 | `references/common-failure-modes.md` | 修 visible runtime path；current behavior did not change |
 | 完成前 | `references/validation-and-playtest.md`、`references/session-closeout-sync.md` | 验证、manual playtest、文档收尾 |
 | 维护本 skill | `references/skill-quality-gate.md`、`references/external-repositories.md`，运行 `scripts/skill_self_check.py <skill-root>` | 保持 concise、可验证、来源可追踪 |
+| 安装主动调用小技能 | `assets/slash-skill-wrappers/manifest.json`、`scripts/install_slash_skills.py` | 生成 `/godot-*` thin wrappers，仍引用 canonical references |
 
 ## 强制质量门
 
@@ -188,6 +191,7 @@ Expected output: final report 说清实际改到的 runtime path；不能把 tes
 - `scripts/audit_godot_docs.py <godot-project-root>`
 - `scripts/audit_doc_language.py <paths...>`
 - `scripts/init_godot_ai_docs.py <godot-project-root> [--dry-run|--check]`
+- `scripts/install_slash_skills.py [--dry-run|--check|--target <skills-dir>]`
 - `scripts/skill_self_check.py <skill-root>`
 
 script output 是 advisory；改动前仍要直接检查相关 scene 和 script。
