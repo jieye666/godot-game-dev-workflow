@@ -3,7 +3,7 @@
     "name": "godot-workflow",
     "display_name": "Godot Workflow / Godot 总代理",
     "short_description": "Start the full Godot workflow and let canonical routing choose intake, plan, code, docs, or closeout.",
-    "description": "Use when the user explicitly invokes the full Godot workflow, Godot workflow master agent, project-wide Godot task routing, automatic intake/plan/code/docs/closeout selection, or wants Codex to follow the canonical Godot workflow end to end.",
+    "description": "Use when the user explicitly types /godot-workflow, asks to start the full Godot workflow, invokes the Godot workflow master agent, requests project-wide Godot task routing, or wants automatic intake/plan/code/docs/closeout selection through the canonical Godot workflow.",
     "references": ["agent-execution-discipline.md", "context-memory-strategy.md", "project-doc-workflow.md", "validation-and-playtest.md", "session-closeout-sync.md"],
     "task": "启动完整 Godot workflow：先读取 canonical SKILL.md，再按 Task Routing 自动判断 intake、plan、code、docs、closeout 阶段和 focused references。"
   },
@@ -29,7 +29,7 @@
     "short_description": "Review or fix Godot code, scenes, signals, runtime paths, and behavior-did-not-change failures.",
     "description": "Use when the user explicitly invokes Godot code review, scene review, signal review, GDScript rules, Godot 4 API checks, runtime-path debugging, behavior did not change diagnosis, gameplay code quality, node path validation, resource ownership, InputMap or Autoload review, or .tscn contract inspection.",
     "references": ["scene-signal-resource-checklist.md", "godot-4-gdscript-rules.md", "common-failure-modes.md", "implementation-contracts.md"],
-    "task": "合并处理 scene/signal、GDScript、runtime path 和行为没变诊断：先读真实 .tscn/.gd，再定位可见运行路径。"
+    "task": "先判断当前请求是审查、修复还是诊断；再按需要加载 scene/signal、GDScript、common failure 或 implementation contract，并读真实 .tscn/.gd 定位可见运行路径。"
   },
   {
     "name": "godot-docs",

@@ -7,7 +7,9 @@ import re
 import shutil
 import sys
 import argparse
+import importlib.util
 import json
+import tempfile
 from pathlib import Path
 
 
@@ -255,6 +257,7 @@ LEGACY_SLASH_WRAPPER_NAMES = [
     "godot-mcp-editor",
     "godot-skill-maintenance",
 ]
+MANAGED_WRAPPER_MARKER = "Managed by: godot-game-dev-workflow/scripts/install_slash_skills.py"
 DISALLOWED_DIRS = {"__pycache__"}
 DISALLOWED_SUFFIXES = {".pyc", ".pyo"}
 FORBIDDEN_TIER_PHRASES = [
@@ -433,6 +436,104 @@ def load_slash_manifest(root: Path) -> tuple[list[dict[str, object]], list[str]]
     return wrappers, issues
 
 
+def load_slash_installer(root: Path):
+    path = root / "scripts" / "install_slash_skills.py"
+    if not path.is_file():
+        return None, [f"missing {path.relative_to(root)}"]
+    spec = importlib.util.spec_from_file_location("godot_slash_installer_for_self_check", path)
+    if spec is None or spec.loader is None:
+        return None, [f"could not load {path.relative_to(root)}"]
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module, []
+
+
+def write_managed_legacy_wrapper(target: Path) -> None:
+    (target / "agents").mkdir(parents=True, exist_ok=True)
+    (target / "SKILL.md").write_text(
+        f"""---
+name: {target.name}
+description: Legacy managed Godot wrapper for cleanup testing.
+---
+
+# {target.name}
+
+This is a thin explicit-invocation wrapper for the canonical godot-game-dev-workflow skill.
+""",
+        encoding="utf-8",
+        newline="\n",
+    )
+    (target / "agents" / "openai.yaml").write_text("interface: {}\n", encoding="utf-8", newline="\n")
+
+
+def find_slash_install_issues(root: Path, manifest: list[dict[str, object]]) -> list[str]:
+    issues: list[str] = []
+    installer, installer_issues = load_slash_installer(root)
+    if installer_issues:
+        return installer_issues
+    if installer is None:
+        return ["install_slash_skills.py could not be imported"]
+
+    expected_names = set(SLASH_WRAPPER_NAMES)
+    with tempfile.TemporaryDirectory(prefix="godot-slash-self-check-") as temp_dir:
+        target_root = Path(temp_dir) / "skills"
+        target_root.mkdir(parents=True, exist_ok=True)
+
+        for name in LEGACY_SLASH_WRAPPER_NAMES:
+            write_managed_legacy_wrapper(target_root / name)
+
+        clean_issues: list[str] = []
+        names_to_remove = sorted({str(item["name"]) for item in manifest} | set(installer.LEGACY_WRAPPER_NAMES))
+        for name in names_to_remove:
+            installer.remove_wrapper_dir(target_root / name, clean_issues)
+        if clean_issues:
+            issues.extend(f"temporary clean failed: {issue}" for issue in clean_issues)
+
+        for item in manifest:
+            installer.install_one(item, target_root, root, dry_run=False)
+
+        installed_names = {path.name for path in target_root.iterdir() if path.is_dir()}
+        if installed_names != expected_names:
+            issues.append(
+                "temporary install produced "
+                + ", ".join(sorted(installed_names))
+                + "; expected "
+                + ", ".join(sorted(expected_names))
+            )
+
+        for name in LEGACY_SLASH_WRAPPER_NAMES:
+            if (target_root / name).exists():
+                issues.append(f"temporary clean left legacy wrapper {name}")
+
+        rendered_issues = installer.check_installed(manifest, target_root, root)
+        if rendered_issues:
+            issues.extend(f"temporary check failed: {issue}" for issue in rendered_issues)
+
+        for name in expected_names:
+            skill_path = target_root / name / "SKILL.md"
+            yaml_path = target_root / name / "agents" / "openai.yaml"
+            skill_text = skill_path.read_text(encoding="utf-8", errors="replace") if skill_path.is_file() else ""
+            if MANAGED_WRAPPER_MARKER not in skill_text:
+                issues.append(f"{name} missing managed marker")
+            if not yaml_path.is_file():
+                issues.append(f"{name} missing generated agents/openai.yaml")
+
+    with tempfile.TemporaryDirectory(prefix="godot-slash-unmanaged-check-") as temp_dir:
+        target = Path(temp_dir) / "godot-execution"
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "SKILL.md").write_text(
+            "---\nname: godot-execution\ndescription: unmanaged\n---\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+        clean_issues: list[str] = []
+        removed = installer.remove_wrapper_dir(target, clean_issues)
+        if removed or not target.exists() or not clean_issues:
+            issues.append("unmanaged wrapper removal guard did not refuse deletion")
+
+    return issues
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check the Godot game development workflow skill folder.")
     parser.add_argument("root", nargs="?", default=".", help="Skill root directory")
@@ -479,6 +580,7 @@ def main() -> int:
     indexed_reference_names = set(INDEX_REF_RE.findall(index_text))
     project_root = Path(args.project_root).resolve() if args.project_root else root.parent / "2da"
     slash_wrappers, slash_manifest_issues = load_slash_manifest(root)
+    slash_install_issues = find_slash_install_issues(root, slash_wrappers) if not slash_manifest_issues else []
 
     generated_artifacts = find_generated_artifacts(root)
     forbidden_tier_hits = [
@@ -528,6 +630,12 @@ def main() -> int:
             if not slash_manifest_issues
             else "slash wrapper manifest: " + "; ".join(slash_manifest_issues[:5]),
             not slash_manifest_issues,
+        ),
+        (
+            "slash wrapper temp install"
+            if not slash_install_issues
+            else "slash wrapper temp install: " + "; ".join(slash_install_issues[:5]),
+            not slash_install_issues,
         ),
         ("scripts/install_slash_skills.py", slash_install_script.is_file()),
         ("install_slash_skills.py dry-run/check", "--dry-run" in slash_install_text and "--check" in slash_install_text),

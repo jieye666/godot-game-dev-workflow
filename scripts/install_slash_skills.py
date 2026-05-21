@@ -26,10 +26,9 @@ LEGACY_WRAPPER_NAMES = [
     "godot-skill-maintenance",
 ]
 
-WRAPPER_MARKERS = [
-    "thin explicit-invocation wrapper",
-    "godot-game-dev-workflow",
-]
+MANAGED_WRAPPER_MARKER = "Managed by: godot-game-dev-workflow/scripts/install_slash_skills.py"
+CANONICAL_SKILL_MARKER = "godot-game-dev-workflow"
+LEGACY_GENERATED_WRAPPER_MARKER = "thin explicit-invocation wrapper"
 
 
 def default_codex_skills_dir() -> Path:
@@ -62,6 +61,8 @@ description: {description} This is a thin explicit-invocation wrapper for the ca
 # {name}
 
 这是 `godot-game-dev-workflow` 的主动调用 wrapper。它只负责让用户可以通过 slash / skill picker 点名调用；规则真相仍在 canonical skill。
+
+{MANAGED_WRAPPER_MARKER}
 
 ## Canonical Source
 
@@ -114,7 +115,9 @@ def is_managed_wrapper(target: Path) -> bool:
     if not skill_path.is_file():
         return False
     text = skill_path.read_text(encoding="utf-8", errors="replace")
-    return all(marker in text for marker in WRAPPER_MARKERS)
+    has_current_marker = MANAGED_WRAPPER_MARKER in text
+    has_legacy_marker = LEGACY_GENERATED_WRAPPER_MARKER in text
+    return CANONICAL_SKILL_MARKER in text and (has_current_marker or has_legacy_marker)
 
 
 def remove_wrapper_dir(target: Path, issues: list[str]) -> bool:
