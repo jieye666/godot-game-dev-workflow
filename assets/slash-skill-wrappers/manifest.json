@@ -3,7 +3,7 @@
     "name": "godot-workflow",
     "display_name": "Godot Workflow / Godot 总代理",
     "short_description": "Start the full Godot workflow and let canonical routing choose intake, plan, code, docs, or closeout.",
-    "description": "Use when the user explicitly types /godot-workflow, asks to start the full Godot workflow, invokes the Godot workflow master agent, requests project-wide Godot task routing, or wants automatic intake/plan/code/docs/closeout selection through the canonical Godot workflow.",
+    "description": "Use when the user explicitly types /godot-workflow, says 启动 Godot 总代理, asks to start the full Godot workflow, or requests automatic intake/plan/code/docs/closeout selection through the canonical Godot workflow.",
     "references": ["agent-execution-discipline.md", "context-memory-strategy.md", "project-doc-workflow.md", "validation-and-playtest.md", "session-closeout-sync.md"],
     "task": "启动完整 Godot workflow：先读取 canonical SKILL.md，再按 Task Routing 自动判断 intake、plan、code、docs、closeout 阶段和 focused references。"
   },

@@ -168,6 +168,14 @@ REQUIRED_REFERENCE_PHRASES = {
         "NEXT-STEPS.md",
         "manual acceptance",
     ],
+    "references/slash-command-surface.md": [
+        "User Command Surface",
+        "/godot-workflow",
+        "/godot-code",
+        "Internal Routing",
+        "Wrapper Policy",
+        "Managed by: godot-game-dev-workflow/scripts/install_slash_skills.py",
+    ],
 }
 REQUIRED_PHRASES = [
     "Do not infer the engine from parent folder names",
@@ -196,6 +204,7 @@ REQUIRED_PHRASES = [
     "2DA-style indexed docs",
     "project-organization-health.md",
     "install_slash_skills.py",
+    "slash-command-surface.md",
 ]
 OPENAI_REQUIRED_TERMS = [
     "manage",
@@ -424,9 +433,15 @@ def load_slash_manifest(root: Path) -> tuple[list[dict[str, object]], list[str]]
             if not ref_path.is_file():
                 issues.append(f"{name} missing reference {ref}")
     names = [str(item.get("name", "")) for item in wrappers]
+    expected_order = SLASH_WRAPPER_NAMES
+    duplicate_names = sorted({name for name in names if names.count(name) > 1})
     missing_names = sorted(set(SLASH_WRAPPER_NAMES) - set(names))
     extra_names = sorted(set(names) - set(SLASH_WRAPPER_NAMES))
     legacy_names = sorted(set(names) & set(LEGACY_SLASH_WRAPPER_NAMES))
+    if names != expected_order:
+        issues.append("slash wrapper order is not canonical: " + ", ".join(names))
+    if duplicate_names:
+        issues.append("duplicate slash wrappers: " + ", ".join(duplicate_names))
     if missing_names:
         issues.append("missing slash wrappers: " + ", ".join(missing_names))
     if extra_names:
@@ -513,10 +528,32 @@ def find_slash_install_issues(root: Path, manifest: list[dict[str, object]]) -> 
             skill_path = target_root / name / "SKILL.md"
             yaml_path = target_root / name / "agents" / "openai.yaml"
             skill_text = skill_path.read_text(encoding="utf-8", errors="replace") if skill_path.is_file() else ""
+            yaml_text = yaml_path.read_text(encoding="utf-8", errors="replace") if yaml_path.is_file() else ""
+            item = next((entry for entry in manifest if str(entry.get("name", "")) == name), None)
             if MANAGED_WRAPPER_MARKER not in skill_text:
                 issues.append(f"{name} missing managed marker")
             if not yaml_path.is_file():
                 issues.append(f"{name} missing generated agents/openai.yaml")
+            if item is None:
+                issues.append(f"{name} missing manifest item")
+                continue
+            if f"name: {name}" not in skill_text:
+                issues.append(f"{name} generated SKILL.md missing frontmatter name")
+            if str(item["description"]) not in skill_text:
+                issues.append(f"{name} generated SKILL.md missing manifest description")
+            if str(item["task"]) not in skill_text:
+                issues.append(f"{name} generated SKILL.md missing manifest task")
+            for ref in item["references"]:
+                if f"references\\{ref}" not in skill_text and f"references/{ref}" not in skill_text:
+                    issues.append(f"{name} generated SKILL.md missing reference {ref}")
+            if f"Use ${name}" not in yaml_text:
+                issues.append(f"{name} generated openai.yaml missing skill token")
+            if str(item["display_name"]) not in yaml_text:
+                issues.append(f"{name} generated openai.yaml missing display_name")
+            if str(item["short_description"]) not in yaml_text:
+                issues.append(f"{name} generated openai.yaml missing short_description")
+            if str(item["task"]) not in yaml_text:
+                issues.append(f"{name} generated openai.yaml missing task")
 
     with tempfile.TemporaryDirectory(prefix="godot-slash-unmanaged-check-") as temp_dir:
         target = Path(temp_dir) / "godot-execution"

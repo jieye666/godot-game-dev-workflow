@@ -17,7 +17,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 `SKILL.md` 是路由器，详细规则放在 `references/`。新增或更新文档、docs sync、commit message 和面向人查看的说明默认中文；路径、命令、API、Godot 标识符、GDD 编号、文件名和专有名词保持英文。
 
-如果用户想主动调用 Godot workflow，运行 `scripts/install_slash_skills.py` 安装 thin slash wrappers。用户可见入口只保留 1 个总代理和 5 个明确子命令：`/godot-workflow`、`/godot-intake`、`/godot-plan`、`/godot-code`、`/godot-docs`、`/godot-closeout`。`/godot-workflow` 启动完整流程并由本 skill 的 Task Routing 自动判断阶段；未启动总代理时，用户可自由点名 5 个子命令处理局部任务。AI 内部仍通过 canonical references 细分调度，不暴露更多 slash wrapper；规则真相仍回到本 skill 和对应 references。
+用户可主动调用 `/godot-workflow` 总代理和 5 个明确子命令；命令表面、安装规则和旧 wrapper 清理策略见 `references/slash-command-surface.md`。AI 内部仍通过 canonical references 细分调度，不暴露更多 slash wrapper。
 
 ## AI Failure Prevention Gate
 
@@ -98,7 +98,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 | 行为没变或验证失败 | `references/common-failure-modes.md` | 修 visible runtime path；current behavior did not change |
 | 完成前 | `references/validation-and-playtest.md`、`references/session-closeout-sync.md` | 验证、manual playtest、文档收尾 |
 | 维护本 skill | `references/skill-quality-gate.md`、`references/external-repositories.md`，运行 `scripts/skill_self_check.py <skill-root>` | 保持 concise、可验证、来源可追踪 |
-| 安装主动调用小技能 | `assets/slash-skill-wrappers/manifest.json`、`scripts/install_slash_skills.py` | 生成 `/godot-workflow` + 5 个用户子命令；AI 内部细分仍引用 canonical references |
+| 安装主动调用小技能 | `references/slash-command-surface.md`、`assets/slash-skill-wrappers/manifest.json`、`scripts/install_slash_skills.py` | 生成 `/godot-workflow` + 5 个用户子命令；AI 内部细分仍引用 canonical references |
 
 ## 强制质量门
 
@@ -148,7 +148,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 - Gameplay contract：task plan 读 `gameplay-implementation-plan-template.md`；玩家可见设计读 `web-gameplay-reference-research.md`；scene/script/signal/resource/API 风险读 `implementation-contracts.md`、`scene-signal-resource-checklist.md`、`godot-4-gdscript-rules.md`。
 - 项目文档与协作：docs/layout/context/MCP/multi-agent 分别读 `project-doc-workflow.md`、`game-project-doc-structure.md`、`context-memory-strategy.md`、`mcp-and-editor-workflow.md`、`multi-agent-gameplay-plan.md`。
 - 组织效率：审查 docs/current/plans、主场景脚本、scene 或 smoke test 体量时读 `project-organization-health.md`。
-- 验证、失败与维护：完成前读 `validation-and-playtest.md`、`session-closeout-sync.md`；行为没变读 `common-failure-modes.md`；维护本 skill 读 `skill-quality-gate.md`、`external-repositories.md`。
+- 验证、失败与维护：完成前读 `validation-and-playtest.md`、`session-closeout-sync.md`；行为没变读 `common-failure-modes.md`；维护本 skill 读 `skill-quality-gate.md`、`external-repositories.md`；调整 slash 命令表面时读 `slash-command-surface.md`。
 
 ## Examples
 

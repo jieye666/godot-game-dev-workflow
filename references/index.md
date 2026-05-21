@@ -34,6 +34,7 @@
 
 - `skill-quality-gate.md`：维护本 skill、新增 reference/script/template、吸收外部 workflow idea 时加载。
 - `external-repositories.md`：刷新外部来源、记录 local snapshot、追踪来源不确定性时加载。
+- `slash-command-surface.md`：调整 `/godot-workflow`、5 个用户子命令、wrapper manifest、安装清理和旧命令收敛策略时加载。
 
 ## 路由原则
 
