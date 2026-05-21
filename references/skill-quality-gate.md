@@ -31,7 +31,7 @@
 6. Maintenance：sources、last updated、known limits、validation commands 清楚。
 7. Scriptability：便宜可检查的规则进入 `scripts/skill_self_check.py` 或 helper script。
 8. Evidence：外部来源和不确定性记录在 `external-repositories.md` 或对应 reference。
-9. Package hygiene：不保留 cache、temp logs、local run artifacts。
+9. Package hygiene：不保留 cache、temp logs、local run artifacts；根目录不放 helper `.py`，临时目录必须在仓库外或被 `.gitignore` 明确忽略。
 10. Merge coverage：从旧 skill 或外部来源迁入时，确认每个高价值点落在 `SKILL.md`、focused reference、script、template 或明确拒收记录之一。
 11. Failure prevention：新增规则能映射到 assumption、owned scope、source of truth、deterministic check、verification 或 manual acceptance；否则只保留为参考，不进 core workflow。
 12. Context cost：新增内容不得让 `SKILL.md` 变成长文章；核心门靠短句，细节进入 focused reference，能脚本化的规则进入 helper script。
@@ -44,8 +44,10 @@
 | Frontmatter shape | platform skill validator；Windows 中文内容必要时先设置 `$env:PYTHONUTF8='1'` |
 | Reference link integrity | `scripts/skill_self_check.py` |
 | Required sections | `scripts/skill_self_check.py` |
+| Root package hygiene | `scripts/skill_self_check.py` 检查 `.tmp/`、根级异常文件和 cache |
 | agent 自选档位和 selected tier 记录 | `scripts/skill_self_check.py` plus golden task review |
 | 玩家可见计划的 reference research 字段 | `scripts/skill_self_check.py` plus golden task review |
+| Golden task regressions | `scripts/skill_self_check.py` 检查小 bug、行为没变、玩家可见参考调研的关键流程词 |
 | Generated cache/temp artifacts | `scripts/skill_self_check.py` 报告；显式 fix flag 才清理 |
 | Godot node paths/signals | `scripts/check_scene_references.py` plus direct inspection |
 | Project docs drift | `scripts/audit_godot_docs.py` plus current-file review |
@@ -79,7 +81,7 @@ Manual gates 仍负责：
 
 ## Golden Task Tests
 
-维护本 skill 后，用这些任务心智检查输出是否退化；需要独立验证时，可让另一个 agent 只读 skill 后回答流程。
+维护本 skill 后，用这些任务心智检查输出是否退化；其中小 bug、行为没变、玩家可见参考调研已有轻量 `scripts/skill_self_check.py` 关键短语检查。需要独立验证时，可让另一个 agent 只读 skill 后回答流程。
 
 - 小 bug：玩家受伤数值错误。期望：Compact Patch Plan、读相关 script/scene、自动验证、manual retest、必要 docs sync。
 - 自动提交 bug 修复：文档审计失败、引用错误或 smoke 失败且无需人工审查。期望：定位根因、修复、验证、必要 docs sync 后直接 commit，并报告 commit id。

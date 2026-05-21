@@ -1,6 +1,6 @@
 # 实现契约
 
-Task Plan 涉及 Godot 行为时必须写清 Scene Tree、Script Plan、Signals、Resources/InputMap/Autoload、Verification。
+Task Plan 涉及 Godot 行为时必须写清 Scene Tree、Script Plan、Signals、Resources/InputMap/Autoload、Verification。不要在纯文档改动、无 scene/script 风险的 one-file patch 或只读问答中加载本文件。
 
 ## 什么时候必须升级 Task Plan
 
@@ -43,6 +43,7 @@ Task Plan 涉及 Godot 行为时必须写清 Scene Tree、Script Plan、Signals�
 - 把 test-only route 当成 player-facing route。
 - 为快速实现新增平行状态 owner，导致 save/UI/gameplay 分裂。
 - 在未说明范围时重构 unrelated systems。
+- 从 `pending` 计划直接实现；必须确认 task traceable 且 Implementation Readiness 为 `ready`，`escalated` 需要用户接受。
 
 ## 中文规范
 

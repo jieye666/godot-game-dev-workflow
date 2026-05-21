@@ -100,6 +100,7 @@ Remove-Item -LiteralPath $tmp -Recurse -Force
 
 ```powershell
 $env:PYTHONUTF8 = "1"
+python -m pip install PyYAML
 python <path-to-skill-creator>\scripts\quick_validate.py .
 ```
 

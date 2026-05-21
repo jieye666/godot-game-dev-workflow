@@ -1,6 +1,6 @@
 # 场景信号资源检查表
 
-修改 scene、signal、resource 前使用。读真实 `.tscn`，确认 node hierarchy、signals、collision、monitoring、resources。
+修改 scene、signal、resource 前使用。读真实 `.tscn`，确认 node hierarchy、signals、collision、monitoring、resources。不要在纯脚本内部算法、小文案、docs-only cleanup 或没有 scene/resource 风险的 one-file patch 中加载。
 
 ## 修改前检查
 

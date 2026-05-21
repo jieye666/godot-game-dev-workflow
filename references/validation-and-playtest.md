@@ -1,6 +1,6 @@
 # 验证与游玩验收
 
-自动验证证明结构、脚本和 smoke route；人工验收证明 feel、readability、pacing、fun。两者必须分开报告。
+自动验证证明结构、脚本和 smoke route；人工验收证明 feel、readability、pacing、fun。两者必须分开报告。不要在开发中每个小 patch 后默认加载完整 validation 规则；先按 task shape 选择窄验证，closeout 或提交前再升级。
 
 ## 验证分层和时间成本
 

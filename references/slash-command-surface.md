@@ -22,3 +22,4 @@
 - Wrapper 必须是 thin explicit-invocation wrapper，只负责触发和路由，不复制 canonical 规则。
 - 生成的 wrapper 必须包含 `Managed by: godot-game-dev-workflow/scripts/install_slash_skills.py` marker，并指向 canonical `godot-game-dev-workflow`。
 - `assets/slash-skill-wrappers/manifest.json` 是用户命令清单的 source of truth；`scripts/install_slash_skills.py --check` 和 `scripts/skill_self_check.py` 必须能发现旧 wrapper 残留、manifest 漂移和生成内容不一致。
+- 安装或清理 wrapper 前先运行 `scripts/install_slash_skills.py --dry-run` 或 `--check`；使用 `--clean` 前确认 `--target` 是预期 Codex skills 目录，脚本只允许删除带 managed marker 的 wrapper。

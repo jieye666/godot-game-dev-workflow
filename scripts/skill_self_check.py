@@ -25,11 +25,11 @@ FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
 INDEX_REF_RE = re.compile(r"^- `([^`/]+\.md)`[:：]", re.MULTILINE)
 REQUIRED_SECTIONS = [
     "## 计划档位",
-    "## 自动提交规则",
+    "## 任务分流与收尾原则",
     "## 不适用 / 边界",
     "## 工作流",
     "## Task Routing",
-    "## 强制质量门",
+    "## 质量门路由",
     "## 上下文预算规则",
     "## Two-Stage Records",
     "## Reference Loading",
@@ -45,6 +45,14 @@ REQUIRED_REFERENCES = [
     "references/mcp-and-editor-workflow.md",
 ]
 REQUIRED_REFERENCE_PHRASES = {
+    "references/index.md": [
+        "## intake/docs",
+        "## planning",
+        "## implementation",
+        "## closeout/maintenance",
+        "不要默认加载完整 `references/`",
+        "不要在",
+    ],
     "references/mcp-and-editor-workflow.md": [
         "MCP",
         "editor",
@@ -247,6 +255,27 @@ TEMPLATE_REQUIRED_PHRASES = {
     ],
 }
 INIT_SCRIPT_REQUIRED_PHRASES = ["--dry-run", "--check", "argparse"]
+GOLDEN_TASK_CHECKS = {
+    "golden small bug flow": [
+        "Compact Patch Plan",
+        "相关 smoke",
+        "manual retest",
+        "Doc sync",
+    ],
+    "golden behavior unchanged flow": [
+        "current behavior did not change",
+        "played scene",
+        "attached script",
+        "main route",
+        "resource instance",
+    ],
+    "golden player-visible reference flow": [
+        "Reference research",
+        "manual acceptance pack",
+        "同类成功游戏",
+        "Local mapping",
+    ],
+}
 SLASH_WRAPPER_NAMES = [
     "godot-workflow",
     "godot-intake",
@@ -267,7 +296,9 @@ LEGACY_SLASH_WRAPPER_NAMES = [
     "godot-skill-maintenance",
 ]
 MANAGED_WRAPPER_MARKER = "Managed by: godot-game-dev-workflow/scripts/install_slash_skills.py"
-DISALLOWED_DIRS = {"__pycache__"}
+ALLOWED_ROOT_FILES = {".gitattributes", ".gitignore", "LICENSE", "README.md", "SKILL.md"}
+ALLOWED_ROOT_DIRS = {".git", ".github", "agents", "assets", "references", "scripts", "tests"}
+DISALLOWED_DIRS = {"__pycache__", ".tmp"}
 DISALLOWED_SUFFIXES = {".pyc", ".pyo"}
 FORBIDDEN_TIER_PHRASES = [
     "用户确认 selected tier",
@@ -324,6 +355,22 @@ def find_generated_artifacts(root: Path) -> list[Path]:
         if path.is_file() and path.suffix in DISALLOWED_SUFFIXES:
             generated.append(path.relative_to(root))
     return sorted(set(generated))
+
+
+def find_package_hygiene_issues(root: Path) -> list[str]:
+    issues: list[str] = []
+    for path in sorted(root.iterdir()):
+        name = path.name
+        if path.is_dir():
+            if name not in ALLOWED_ROOT_DIRS:
+                issues.append(f"unexpected root directory {name}")
+            continue
+
+        if name not in ALLOWED_ROOT_FILES:
+            issues.append(f"unexpected root file {name}")
+        if path.suffix == ".py":
+            issues.append(f"root python helper must move under scripts/: {name}")
+    return issues
 
 
 def find_slimming_issues(project_root: Path) -> list[str]:
@@ -614,12 +661,15 @@ def main() -> int:
     index = root / "references" / "index.md"
     index_text = index.read_text(encoding="utf-8", errors="replace") if index.is_file() else ""
     reference_files = sorted((root / "references").glob("*.md")) if (root / "references").is_dir() else []
+    reference_texts = [path.read_text(encoding="utf-8", errors="replace") for path in reference_files]
+    corpus_text = text + "\n" + "\n".join(reference_texts)
     indexed_reference_names = set(INDEX_REF_RE.findall(index_text))
     project_root = Path(args.project_root).resolve() if args.project_root else root.parent / "2da"
     slash_wrappers, slash_manifest_issues = load_slash_manifest(root)
     slash_install_issues = find_slash_install_issues(root, slash_wrappers) if not slash_manifest_issues else []
 
     generated_artifacts = find_generated_artifacts(root)
+    package_hygiene_issues = find_package_hygiene_issues(root)
     forbidden_tier_hits = [
         phrase
         for phrase in FORBIDDEN_TIER_PHRASES
@@ -649,6 +699,12 @@ def main() -> int:
             if not generated_artifacts
             else f"no generated cache files ({', '.join(str(path) for path in generated_artifacts[:5])}); run --fix-generated-artifacts to clean",
             not generated_artifacts,
+        ),
+        (
+            "root package hygiene"
+            if not package_hygiene_issues
+            else "root package hygiene: " + "; ".join(package_hygiene_issues[:5]),
+            not package_hygiene_issues,
         ),
         (
             "no mandatory user tier confirmation phrasing"
@@ -682,9 +738,17 @@ def main() -> int:
         ("agents/openai.yaml skill token", f"${EXPECTED_SKILL_NAME}" in openai_text),
     ]
     checks.extend((f"section {section}", section in text) for section in REQUIRED_SECTIONS)
-    checks.extend((f"required phrase {phrase}", phrase in text) for phrase in REQUIRED_PHRASES)
+    checks.extend((f"required phrase {phrase}", phrase in corpus_text) for phrase in REQUIRED_PHRASES)
     checks.extend((rel, (root / rel).is_file()) for rel in REQUIRED_REFERENCES)
     checks.append(("examples count", text.count("### ") >= 3))
+    for name, phrases in GOLDEN_TASK_CHECKS.items():
+        missing = [phrase for phrase in phrases if phrase not in corpus_text]
+        checks.append(
+            (
+                name if not missing else f"{name} missing: " + ", ".join(missing),
+                not missing,
+            )
+        )
 
     for rel, phrases in REQUIRED_REFERENCE_PHRASES.items():
         ref_path = root / rel

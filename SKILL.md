@@ -1,13 +1,13 @@
 ---
 name: godot-game-dev-workflow
-description: Use when managing, initializing, planning, auditing, implementing, validating, or documenting Godot game projects with AI-readable project management, high-quality gameplay code standards, low-token context routing, authoritative docs, Chinese-first documentation, task breakdowns, readiness gates, implementation contracts, scene/script/signal/resource discipline, MCP/editor collaboration rules, architecture decisions, external reference intake, single-source documentation cleanup, session closeout sync, multi-agent plans, or playtest-driven fixes in existing or newly created Godot game projects. 用于 Godot 项目管理、中文文档规范、玩法开发、计划、审计、验证、MCP/editor 协作和交接。
+description: Use when Codex needs the Godot game workflow for project intake, docs routing, gameplay planning, implementation contracts, validation, closeout, MCP/editor boundaries, external reference intake, or Chinese-first project documentation. 用于 Godot 项目管理、中文文档规范、玩法计划、验证收尾、MCP/editor 协作和交接。
 ---
 
 # Godot Game Dev Workflow
 
 ## 概览
 
-把本 skill 当作 Godot 项目管理、gameplay 开发、验证和交接的操作流程。目标是让 AI agent 通过权威文档、最小上下文、implementation contracts、系统边界、MCP/editor 协作规则和验证流程稳定推进项目。
+把本 skill 当作 Godot 项目管理、gameplay 开发、验证和交接的操作流程。目标是让 AI agent 通过权威文档、最小上下文、implementation contracts、系统边界、MCP/editor 协作规则、high-quality gameplay code standards 和验证流程稳定推进项目。
 
 核心规则：先检查真实项目状态，用项目 `docs/INDEX.md` 找权威上下文；正式计划前由 agent 自行选择快速档 / 标准档 / 严格档并记录理由，高风险、范围不清或需要人工取舍时才询问用户；计划 Boss、movement feel、camera/readability、route pacing、UI flow 等玩家可见设计或主观体验时，先联网查找同类成功游戏或开源实现的设计/技术参考；本地 bug、save/load、验证脚本和代码事实审查可写明 `Reference research: not needed`；按档位选择 Patch Plan / Task Plan / Milestone Plan；改代码前确认系统关系和扩展点；验证后同步文档和历史。
 
@@ -36,12 +36,12 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 - 严格档：跨系统、多 agent、架构变更、提交前收尾或高风险修复。写完整 contract、ownership、验证计划、docs/history closeout；收尾跑完整 validation。
 - 正式计划前由 agent 选择 selected tier，记录 reason、主要风险和不用更轻/更重档位的 tradeoff。只有 scope 不清、高风险、需要人工取舍或 `escalated` 时才询问用户。
 
-## 自动提交规则
+## 任务分流与收尾原则
 
-- 用户已授权提交、项目 policy 要求提交，或简单修复可由自动验证充分证明且不需要人工审查时，完成验证和必要 docs sync 后直接 commit。
-- 不需要人工审查的 bug 修复：parser/test/smoke 失败、路径/引用错误、明确 runtime error、文档审计失败、验证脚本问题、非主观数值或代码缺陷，且有自动验证能覆盖修复结果。
-- 仍需等待人工验收：movement feel、Boss pacing、route readability、camera/UI 观感、玩法节奏、manual-only behavior，或用户明确要求先不要提交。
-- 直接提交前仍要检查 `git status` 和 diff，只加入本任务 owned files；如工作树有无关改动，报告并避开；提交后报告 commit id、验证命令和未执行的 manual acceptance。
+- 默认先判断任务类型，再走最小必要流程；one-file patch 不加载大计划、完整 history 或 closeout references。
+- 客观且自动验证可证明的修复可由 agent 完成 docs sync / commit；主观体验、UI、路线可读性、Boss pacing、movement feel 等必须等待 manual acceptance。
+- 玩家可见高风险设计按风险触发 `web-gameplay-reference-research.md`；小型可见修复可写 `Reference research: not needed` 和具体理由。
+- 自动提交细节归 `session-closeout-sync.md`；执行节奏、暂停点和 docs rhythm 归 `agent-execution-discipline.md`。
 
 ## 不适用 / 边界
 
@@ -56,24 +56,15 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 ## 工作流
 
-1. 找到 `project.godot`，确认 Godot 项目根；编辑前把 shell/workdir/patch 路径对齐到真实项目根，或显式使用从当前目录到项目根的前缀，避免把补丁打到父目录。
-2. 需要 MCP/editor 时加载 `mcp-and-editor-workflow.md`，先把 tool evidence 和 file evidence 分开。
-3. 正式计划前加载 `agent-execution-discipline.md`，先判断 task shape、最小闭环、暂停点、验证节奏和文档时机；再由 agent 选择档位并记录理由。
-4. 判断 plan depth：Patch Plan 用于快速档；Task Plan 用于标准档 gameplay slice 或 scene/script change；Milestone Plan 用于严格档 vague/multi-system/multi-agent/multi-session work。
-5. 进入 implementation、玩家可见 polish、文档收尾或提交前，按已确认的 task shape 复核 `agent-execution-discipline.md`，避免边做边扩大 scope。
-6. Boss、movement feel、camera/readability、route pacing、UI flow 等玩家可见设计或主观体验计划在正式成稿前加载 `web-gameplay-reference-research.md`，联网查找 2-4 个对应游戏部分的成功例子或可靠开源实现，并把参考结论转成本项目的 scope、risk、validation 和 non-goal；纯本地 bug、save/load、验证脚本、文档清理和代码事实审查可记录 `Reference research: not needed` 和理由。
-7. 大任务先更新 planning artifacts：brief、requirements、design、task breakdown、verification plan、progress log；加载 `large-project-planning.md` 和 `planning-readiness-and-traceability.md`。
-8. gameplay system 或大功能要加载 `extensible-gameplay-architecture.md`，先做 architecture check。
-9. documented project 先读 quick context / identity，再读 `docs/INDEX.md`，然后读 index 指向的 status 和 next-step files。docs 冲突时更新 designated source of truth，不新增重复事实。
-10. 文档/计划编辑先集中读完 authoritative docs，列清所有目标文件和最终状态，再用一个 consolidated patch 写入；审计失败后只做 audit-driven correction，避免同一批文档反复来回改。
-11. 改文件前写相应深度计划。Patch Plan 保持紧凑：goal、owned files、current evidence、reference research、risk、verification、manual acceptance。Task Plan 涉及 scenes/scripts/signals/resources/InputMap/Autoload/ownership 时必须写完整 contract。
-12. 使用 node path 前检查真实 `.tscn` 和 `.gd`；不要猜 node name 或 signal connection。
-13. planned work 只有 traceable 且 Implementation Readiness 为 `ready` 时执行；`escalated` 需要用户接受。
-14. implementation agent 可以补 risk notes 和 verification checks，但不能推翻已接受 scope；计划明显错误时暂停报告。
-15. 自动验证和 manual playtest 分开报告；Godot executable 先读项目 quick context / 验证脚本 / `GODOT_EXE`，不要猜系统路径。
-16. manual acceptance 需要给 scene、action、exact controls、expected result、failure feedback；涉及 Boss、debug route、save/load 或 gated progression 时，必须写清按键/输入、可见 UI 文案、保存读取步骤。
-17. behavior、nodes、signals、resources、tuning、task status、architecture decision 或 verification evidence 变化后，同步项目 docs。
-18. 完成 implementation、doc cleanup 或 milestone handoff 后，按 `session-closeout-sync.md` 收尾。用户手动验收通过时，docs sync 属于同一执行单元；无需人工审查的 bug 修复在验证和必要 docs sync 后直接 commit。
+1. 先找 `project.godot`，确认真实项目根。Do not infer the engine from parent folder names。
+2. 判断 task shape：bug fix、player-visible polish、system slice、docs closeout、skill maintenance、side issue。
+3. 按 task shape 和档位只加载 focused references；不要默认读完整 `references/`、history 或 reference project。
+4. 改文件前写相应深度计划：Compact Patch Plan、Task Plan 或 Milestone Plan。
+5. 使用 node path、signal、resource、InputMap、Autoload 前读真实 `.tscn` 和 `.gd`。
+6. 玩家可见高风险设计先做 reference research；纯本地 bug / docs / validation 修复可写免除理由。
+7. 自动验证和 manual playtest 分开报告；Godot output error scan 不能只看 exit code。
+8. behavior、docs、plans、verification evidence 变化后按 closeout policy 同步 designated docs。
+9. 客观修复按自动验证和项目 policy 收尾；主观体验先给 manual acceptance pack，用户确认后再 docs/history/archive/commit。
 
 ## Task Routing
 
@@ -100,21 +91,13 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 | 维护本 skill | `references/skill-quality-gate.md`、`references/external-repositories.md`，运行 `scripts/skill_self_check.py <skill-root>` | 保持 concise、可验证、来源可追踪 |
 | 安装主动调用小技能 | `references/slash-command-surface.md`、`assets/slash-skill-wrappers/manifest.json`、`scripts/install_slash_skills.py` | 生成 `/godot-workflow` + 5 个用户子命令；AI 内部细分仍引用 canonical references |
 
-## 强制质量门
+## 质量门路由
 
-| 场景 | 必须确认 | 不允许 |
-| --- | --- | --- |
-| 改任何文件前 | `project.godot` 所在真实项目根、当前 workdir、patch 路径前缀一致 | 在父目录误打补丁，或第一次补丁靠失败来发现路径错 |
-| 正式计划前 | agent selected tier、理由、tradeoff；主观体验/玩家可见设计还要有 reference research 或免除理由 | 未记录档位就写过重或过轻的计划；纯靠 agent 直觉规划 gameplay feel |
-| 批量文档/计划编辑 | 先读权威入口并设计完整目标 diff；一次性写入，再审计驱动修正 | 对同一批文档边写边补、反复改路由事实 |
-| 玩家可见或主观内容 | 先实现可看版本和窄验证，提供 manual acceptance pack；用户确认后再 docs/history/archive/commit | 未确认前写成已验收，或每个小步骤都跑完整 validation |
-| 改 gameplay code | task 可追踪且 readiness 为 `ready`；必要时加载 `implementation-contracts.md` | 从 `pending` 计划直接实现 |
-| 改 `.tscn` / signal / resource | 读真实 scene/script；加载 `scene-signal-resource-checklist.md` | 猜 node path、signal、resource 实例 |
-| 大功能或可复用系统 | 写 architecture check；加载 `extensible-gameplay-architecture.md` | 为首版方便牺牲明显扩展点 |
-| 验证通过但行为没变 | 检查 played scene、attached script、main route、resource instance | 只补测试，不修 visible runtime path |
-| 写 manual acceptance | scene、exact controls、visible expected result、failure feedback；Boss/debug/save-load route 写清按键和 F5/F9 等存取步骤 | 只写“进入场景确认通过”或漏掉造成伤害/解锁/保存的操作 |
-| 引入外部参考 | 先读 manifest / selected files；转成 Godot-specific gate | 复制大段外部 theory 或不明来源规则 |
-| 完成前 | 扫描 Godot 输出错误文本；同步必要 docs/history | 只看 exit code 或声称未做的 manual acceptance |
+- 执行纪律、暂停点、scope creep、docs rhythm：读 `agent-execution-discipline.md`。
+- Scene tree、signal、resource、InputMap、Autoload、ownership：读 `implementation-contracts.md` 和 `scene-signal-resource-checklist.md`。
+- 验证分层、Godot output scan、manual acceptance：读 `validation-and-playtest.md`。
+- 行为没变或验证失败：读 `common-failure-modes.md`，检查 played scene、attached script、main route、resource instance。
+- 本 skill 维护和发布前 gate：读 `skill-quality-gate.md` 并运行 `scripts/skill_self_check.py <skill-root>`。
 
 ## 上下文预算规则
 
@@ -194,7 +177,7 @@ Expected output: final report 说清实际改到的 runtime path；不能把 tes
 - `scripts/install_slash_skills.py [--dry-run|--check|--target <skills-dir>]`
 - `scripts/skill_self_check.py <skill-root>`
 
-script output 是 advisory；改动前仍要直接检查相关 scene 和 script。
+script output 是 advisory；改动前仍要直接检查相关 scene 和 script。涉及安装或清理的脚本先运行 `--dry-run` 或 `--check`，确认 target 在预期 skills/project 目录内后再执行写入或清理。
 
 ## Completion Criteria
 
@@ -207,6 +190,6 @@ large task 要说明 task ID 或 planning artifact；manual validation 通过后
 ## Maintenance
 
 - Sources: 当前 Godot 项目实践、用户确认的 workflow、bundled references、Godot 4 constraints、MCP/editor 协作经验、经筛选的外部 AI workflow material。
-- Last updated: 2026-05-20。
+- Last updated: 2026-05-21。
 - Known limits: helper scripts 不能证明 gameplay feel；manual playtest 仍负责 player-facing feel、readability、pacing、route acceptance。
 - Upgrade rule: 优先加小 reference、script、template，不拉长 `SKILL.md`；重大变更后运行 `scripts/skill_self_check.py <skill-root>` 和平台 validator。

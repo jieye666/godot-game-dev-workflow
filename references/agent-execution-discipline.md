@@ -1,6 +1,6 @@
 # Agent 执行纪律
 
-计划前、玩家可见改动、文档收尾、流程复盘或提交前使用。目标是在写计划前先定 task shape、最小闭环、暂停点和验证节奏，避免边做边扩大 scope、过早写文档、重复验证、把中途异常无说明混入主任务。
+计划前、玩家可见改动、文档收尾、流程复盘或提交前使用。目标是在写计划前先定 task shape、最小闭环、暂停点和验证节奏，避免边做边扩大 scope、过早写文档、重复验证、把中途异常无说明混入主任务。不要在已确认的 one-file patch 中为了形式化而加载大计划 reference；只补最小 Patch Plan 和相关验证。
 
 ## 强制执行循环
 
@@ -12,6 +12,15 @@
 6. Side issue handling：中途发现额外问题先分类。阻塞当前验收的错误必须修并说明；非阻塞问题记录或单独报告；只有用户同意或任务 policy 要求时才纳入本次 scope。
 7. Deterministic work：确定性检查交给脚本或命令。文件路由、Git status/diff、文档语言审计、scene reference 检查、Godot output error scan、验证结果汇总等不靠模型记忆或肉眼猜测。
 8. Conflict exposure：current docs、source、archive plan、reference 或 MCP/editor evidence 冲突时，先列出冲突和采用的 source of truth；不能把两种模式折中混合后继续实现。
+
+## 强制质量门
+
+| 场景 | 必须确认 | 不允许 |
+| --- | --- | --- |
+| 改任何文件前 | `project.godot` 所在真实项目根、当前 workdir、patch 路径前缀一致 | 在父目录误打补丁，或第一次补丁靠失败来发现路径错 |
+| 正式计划前 | agent selected tier、理由、tradeoff；主观体验/玩家可见设计还要有 reference research 或免除理由 | 未记录档位就写过重或过轻的计划；纯靠 agent 直觉规划 gameplay feel |
+| 批量文档/计划编辑 | 先读权威入口并设计完整目标 diff；一次性写入，再审计驱动修正 | 对同一批文档边写边补、反复改路由事实 |
+| 玩家可见或主观内容 | 先实现可看版本和窄验证，提供 manual acceptance pack；用户确认后再 docs/history/archive/commit | 未确认前写成已验收，或每个小步骤都跑完整 validation |
 
 ## 暂停点
 

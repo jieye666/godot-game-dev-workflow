@@ -1,4 +1,5 @@
 __pycache__/
+.tmp/
 *.py[cod]
 *.pyo
 *.log
@@ -13,4 +14,3 @@ Thumbs.db
 *.import
 godot-game-dev-workflow-smoke/
 *.zip
-
