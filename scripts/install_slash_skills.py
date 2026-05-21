@@ -14,6 +14,23 @@ from pathlib import Path
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
+LEGACY_WRAPPER_NAMES = [
+    "godot-execution",
+    "godot-reference-research",
+    "godot-scene-signal",
+    "godot-gdscript",
+    "godot-validation",
+    "godot-failure-debug",
+    "godot-org-health",
+    "godot-mcp-editor",
+    "godot-skill-maintenance",
+]
+
+WRAPPER_MARKERS = [
+    "thin explicit-invocation wrapper",
+    "godot-game-dev-workflow",
+]
+
 
 def default_codex_skills_dir() -> Path:
     codex_home = os.environ.get("CODEX_HOME")
@@ -92,8 +109,30 @@ def install_one(item: dict[str, object], target_root: Path, canonical_root: Path
     return target
 
 
+def is_managed_wrapper(target: Path) -> bool:
+    skill_path = target / "SKILL.md"
+    if not skill_path.is_file():
+        return False
+    text = skill_path.read_text(encoding="utf-8", errors="replace")
+    return all(marker in text for marker in WRAPPER_MARKERS)
+
+
+def remove_wrapper_dir(target: Path, issues: list[str]) -> bool:
+    if not target.exists():
+        return False
+    if not is_managed_wrapper(target):
+        issues.append(f"refusing to remove unmanaged wrapper directory {target}")
+        return False
+    shutil.rmtree(target)
+    return True
+
+
 def check_installed(manifest: list[dict[str, object]], target_root: Path, canonical_root: Path) -> list[str]:
     issues: list[str] = []
+    for name in LEGACY_WRAPPER_NAMES:
+        target = target_root / name
+        if target.exists():
+            issues.append(f"legacy wrapper still installed {target}")
     for item in manifest:
         name = str(item["name"])
         target = target_root / name
@@ -143,11 +182,22 @@ def main() -> int:
         return 0
 
     target_root.mkdir(parents=True, exist_ok=True)
+    clean_issues: list[str] = []
+    if args.clean:
+        names_to_remove = sorted({str(item["name"]) for item in manifest} | set(LEGACY_WRAPPER_NAMES))
+        removed = 0
+        for name in names_to_remove:
+            if remove_wrapper_dir(target_root / name, clean_issues):
+                removed += 1
+        if clean_issues:
+            for issue in clean_issues:
+                print(f"[FAIL] {issue}")
+            return 1
+        if removed:
+            print(f"Removed {removed} managed slash skill wrapper directories")
+
     installed: list[Path] = []
     for item in manifest:
-        target = target_root / str(item["name"])
-        if args.clean and target.exists():
-            shutil.rmtree(target)
         installed.append(install_one(item, target_root, canonical_root, dry_run=False))
 
     print(f"Installed {len(installed)} slash skill wrappers:")

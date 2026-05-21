@@ -17,7 +17,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 `SKILL.md` 是路由器，详细规则放在 `references/`。新增或更新文档、docs sync、commit message 和面向人查看的说明默认中文；路径、命令、API、Godot 标识符、GDD 编号、文件名和专有名词保持英文。
 
-如果用户想主动调用内部“小技能”，运行 `scripts/install_slash_skills.py` 安装 thin slash wrappers。Wrappers 只提供 `/godot-plan`、`/godot-docs` 等显式入口；规则真相仍回到本 skill 和对应 references。
+如果用户想主动调用 Godot workflow，运行 `scripts/install_slash_skills.py` 安装 thin slash wrappers。用户可见入口只保留 1 个总代理和 5 个明确子命令：`/godot-workflow`、`/godot-intake`、`/godot-plan`、`/godot-code`、`/godot-docs`、`/godot-closeout`。`/godot-workflow` 启动完整流程并由本 skill 的 Task Routing 自动判断阶段；未启动总代理时，用户可自由点名 5 个子命令处理局部任务。AI 内部仍通过 canonical references 细分调度，不暴露更多 slash wrapper；规则真相仍回到本 skill 和对应 references。
 
 ## AI Failure Prevention Gate
 
@@ -98,7 +98,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 | 行为没变或验证失败 | `references/common-failure-modes.md` | 修 visible runtime path；current behavior did not change |
 | 完成前 | `references/validation-and-playtest.md`、`references/session-closeout-sync.md` | 验证、manual playtest、文档收尾 |
 | 维护本 skill | `references/skill-quality-gate.md`、`references/external-repositories.md`，运行 `scripts/skill_self_check.py <skill-root>` | 保持 concise、可验证、来源可追踪 |
-| 安装主动调用小技能 | `assets/slash-skill-wrappers/manifest.json`、`scripts/install_slash_skills.py` | 生成 `/godot-*` thin wrappers，仍引用 canonical references |
+| 安装主动调用小技能 | `assets/slash-skill-wrappers/manifest.json`、`scripts/install_slash_skills.py` | 生成 `/godot-workflow` + 5 个用户子命令；AI 内部细分仍引用 canonical references |
 
 ## 强制质量门
 

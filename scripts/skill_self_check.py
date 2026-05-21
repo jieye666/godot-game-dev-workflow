@@ -237,15 +237,19 @@ TEMPLATE_REQUIRED_PHRASES = {
 }
 INIT_SCRIPT_REQUIRED_PHRASES = ["--dry-run", "--check", "argparse"]
 SLASH_WRAPPER_NAMES = [
+    "godot-workflow",
     "godot-intake",
-    "godot-docs",
     "godot-plan",
+    "godot-code",
+    "godot-docs",
+    "godot-closeout",
+]
+LEGACY_SLASH_WRAPPER_NAMES = [
     "godot-execution",
     "godot-reference-research",
     "godot-scene-signal",
     "godot-gdscript",
     "godot-validation",
-    "godot-closeout",
     "godot-failure-debug",
     "godot-org-health",
     "godot-mcp-editor",
@@ -419,10 +423,13 @@ def load_slash_manifest(root: Path) -> tuple[list[dict[str, object]], list[str]]
     names = [str(item.get("name", "")) for item in wrappers]
     missing_names = sorted(set(SLASH_WRAPPER_NAMES) - set(names))
     extra_names = sorted(set(names) - set(SLASH_WRAPPER_NAMES))
+    legacy_names = sorted(set(names) & set(LEGACY_SLASH_WRAPPER_NAMES))
     if missing_names:
         issues.append("missing slash wrappers: " + ", ".join(missing_names))
     if extra_names:
         issues.append("unexpected slash wrappers: " + ", ".join(extra_names))
+    if legacy_names:
+        issues.append("legacy slash wrappers still in manifest: " + ", ".join(legacy_names))
     return wrappers, issues
 
 
