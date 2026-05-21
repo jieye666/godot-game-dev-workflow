@@ -7,6 +7,7 @@
 - `project-doc-workflow.md`：进入 documented project、判断 Source of Truth、同步 current/status/history。已读它时不要再读完整 history。
 - `game-project-doc-structure.md`：初始化或审计 docs layout、hot context 字段、docs owner。只在新项目或文档结构混乱时加载。
 - `context-memory-strategy.md`：需要降低 token、整理 hot/warm/cold context、处理 reference project intake 时加载。
+- `project-organization-health.md`：审查 docs/current/plans 是否吸收历史、主场景脚本或 smoke test 是否过大、组织效率是否下降时加载。
 - `session-closeout-sync.md`：完成 implementation、用户验收、milestone handoff 时加载；不要在刚进入项目时加载。
 
 ## 计划和执行

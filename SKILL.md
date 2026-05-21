@@ -13,7 +13,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 
 低 token 不是少读关键文件，而是用 hot context、routed references、current code、closeout docs 避免重复发现。不要因为低上下文而跳过 scene tree、script pseudocode、signal contract、resource dependency、InputMap、Autoload、ownership 或 verification requirement。
 
-默认推荐 2DA-style indexed docs：每类文档一个目录和一个 `INDEX.md` 路由，active GDD 放 `docs/plans/gdd/`，completed / abandoned GDD 的唯一详细文件放 `docs/history/gdd/`，每次提交批次写入 `docs/history/commits/`。新 Godot 项目没有文档规范时建议初始化这套结构；已有项目规范时先按项目 docs。
+默认推荐 2DA-style indexed docs：每类文档一个目录和一个 `INDEX.md` 路由，active GDD 放 `docs/plans/gdd/`，completed / abandoned GDD 的唯一详细文件放 `docs/history/gdd/`，每次提交批次写入 `docs/history/commits/`。新 Godot 项目没有文档规范时建议初始化这套结构；已有项目规范时先按项目 docs。组织效率审查要同时看 active docs 是否吸收历史，以及主场景脚本、scene、smoke test 是否成为 owner 不清的大文件。
 
 `SKILL.md` 是路由器，详细规则放在 `references/`。新增或更新文档、docs sync、commit message 和面向人查看的说明默认中文；路径、命令、API、Godot 标识符、GDD 编号、文件名和专有名词保持英文。
 
@@ -79,6 +79,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 | --- | --- | --- |
 | 已有项目进入 | quick context / identity、`docs/INDEX.md`、status、next steps | 识别身份和当前状态 |
 | 文档路由/清理 | `references/project-doc-workflow.md` | 确认 source of truth，避免重复事实 |
+| 组织效率审查 | `references/project-organization-health.md` | 检查 current/plans 是否吸历史、主场景脚本和 smoke 是否过大 |
 | 新项目 docs / low-token handoff | `references/game-project-doc-structure.md`、`references/context-memory-strategy.md` | 建立 AI-readable docs 和 context tiers |
 | gameplay 计划 | `references/gameplay-implementation-plan-template.md`，必要时 `references/implementation-contracts.md` | 写可执行 contract |
 | 玩家可见玩法/关卡/Boss/UI flow 计划 | `references/web-gameplay-reference-research.md` | 联网查同类成功例子，提炼可本地化的 design / implementation pattern |
@@ -127,6 +128,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 - archived plans 和 history 是证据，不是当前真相；行动前要与当前文件核对。
 - final handoff 要列出 key project docs and reference files used。
 - quick context、`docs/INDEX.md` 和 `NEXT-STEPS.md` 不堆 completed GDD 长历史；历史通过 `docs/history/gdd/INDEX.md` 和按提交拆分的 `docs/history/commits/` 路由。completed / abandoned GDD 不同时保存在 `docs/plans/archive/` 和 `docs/history/gdd/`。
+- `STATUS.md`、`PROJECT-SNAPSHOT.md` 和 roadmap 不堆完成时间线；大型 `main_game.gd`、`Main.tscn` 或 smoke test 先作为组织健康 warning，触碰相关 owner 时再按 route / assertion family 拆。
 - 用户说行为没变时，默认 visible runtime path 仍错；检查 played scene、script attachment、input mapping、signal route、resource instance。
 
 ## Two-Stage Records
@@ -142,6 +144,7 @@ description: Use when managing, initializing, planning, auditing, implementing, 
 - 计划与执行：大任务读 `large-project-planning.md`、`planning-readiness-and-traceability.md`；实现、player-visible polish、docs closeout 或提交前读 `agent-execution-discipline.md`。
 - Gameplay contract：task plan 读 `gameplay-implementation-plan-template.md`；玩家可见设计读 `web-gameplay-reference-research.md`；scene/script/signal/resource/API 风险读 `implementation-contracts.md`、`scene-signal-resource-checklist.md`、`godot-4-gdscript-rules.md`。
 - 项目文档与协作：docs/layout/context/MCP/multi-agent 分别读 `project-doc-workflow.md`、`game-project-doc-structure.md`、`context-memory-strategy.md`、`mcp-and-editor-workflow.md`、`multi-agent-gameplay-plan.md`。
+- 组织效率：审查 docs/current/plans、主场景脚本、scene 或 smoke test 体量时读 `project-organization-health.md`。
 - 验证、失败与维护：完成前读 `validation-and-playtest.md`、`session-closeout-sync.md`；行为没变读 `common-failure-modes.md`；维护本 skill 读 `skill-quality-gate.md`、`external-repositories.md`。
 
 ## Examples

@@ -56,6 +56,17 @@ REQUIRED_REFERENCE_PHRASES = {
         "Docs Owner",
         "2DA-style indexed docs",
         "GDD 存储规则",
+        "project-organization-health.md",
+    ],
+    "references/project-organization-health.md": [
+        "文档健康",
+        "代码和测试健康",
+        "STATUS.md",
+        "PROJECT-SNAPSHOT.md",
+        "GAMEPLAY-EXPANSION-ROADMAP.md",
+        "main_game.gd",
+        "smoke test",
+        "warning",
     ],
     "references/spec-driven-gameplay-workflow.md": [
         "Requirement",
@@ -180,6 +191,7 @@ REQUIRED_PHRASES = [
     "exact controls",
     "保存读取步骤",
     "2DA-style indexed docs",
+    "project-organization-health.md",
 ]
 OPENAI_REQUIRED_TERMS = [
     "manage",
@@ -236,6 +248,16 @@ SLIM_DOC_LIMITS = {
     "docs/current/AGENT-QUICK-CONTEXT.md": 10,
     "docs/plans/NEXT-STEPS.md": 12,
 }
+ORGANIZATION_DOC_LIMITS = {
+    "docs/current/STATUS.md": (90, 30),
+    "docs/current/PROJECT-SNAPSHOT.md": (130, 18),
+    "docs/plans/GAMEPLAY-EXPANSION-ROADMAP.md": (140, 18),
+    "docs/plans/TASK-BREAKDOWN.md": (90, 18),
+}
+ACTIVE_TIMELINE_RE = re.compile(r"^\s*[-*]\s*20\d\d-\d\d-\d\d\s+(完成|废弃|计划中)", re.MULTILINE)
+SCRIPT_WARNING_LIMIT = 1000
+SMOKE_WARNING_LIMIT = 800
+SCENE_WARNING_LIMIT = 700
 REQUIRED_PROJECT_INDEXES = [
     "docs/current/INDEX.md",
     "docs/plans/INDEX.md",
@@ -303,7 +325,47 @@ def find_slimming_issues(project_root: Path) -> list[str]:
             issues.append(f"{rel} has {mentions} GDD mentions; expected <= {max_completed_gdd_mentions}")
         if rel != "docs/current/AGENT-QUICK-CONTEXT.md" and not has_history_index:
             issues.append(f"{rel} does not link docs/history/gdd/INDEX.md")
+    for rel, (max_lines, max_gdd_mentions) in ORGANIZATION_DOC_LIMITS.items():
+        path = project_root / rel
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        line_count = len(text.splitlines())
+        mentions = len(re.findall(r"GDD-\d{3}", text))
+        if line_count > max_lines:
+            issues.append(f"{rel} has {line_count} lines; expected <= {max_lines}")
+        if mentions > max_gdd_mentions:
+            issues.append(f"{rel} has {mentions} GDD mentions; expected <= {max_gdd_mentions}")
+        if ACTIVE_TIMELINE_RE.search(text):
+            issues.append(f"{rel} appears to contain completed/abandoned timeline entries")
     return issues
+
+
+def line_count(path: Path) -> int:
+    return len(path.read_text(encoding="utf-8", errors="replace").splitlines())
+
+
+def find_organization_warnings(project_root: Path) -> list[str]:
+    warnings: list[str] = []
+    if not project_root.is_dir() or not (project_root / "project.godot").is_file():
+        return warnings
+    ignored_parts = {".git", ".godot", ".tmp", "__pycache__", "reference"}
+    for path in sorted(project_root.rglob("*.gd")):
+        if ignored_parts & set(path.relative_to(project_root).parts):
+            continue
+        rel = path.relative_to(project_root).as_posix()
+        limit = SMOKE_WARNING_LIMIT if rel.startswith("tests/") or "smoke_test" in path.name else SCRIPT_WARNING_LIMIT
+        count = line_count(path)
+        if count > limit:
+            warnings.append(f"{rel} has {count} lines; prefer owner/route/assertion-family split when touched")
+    for path in sorted(project_root.rglob("*.tscn")):
+        if ignored_parts & set(path.relative_to(project_root).parts):
+            continue
+        rel = path.relative_to(project_root).as_posix()
+        count = line_count(path)
+        if count > SCENE_WARNING_LIMIT:
+            warnings.append(f"{rel} has {count} lines; keep clear node groups, owner scripts, and smoke coverage")
+    return warnings
 
 
 def main() -> int:
@@ -357,6 +419,7 @@ def main() -> int:
         if phrase in text or any(phrase in path.read_text(encoding="utf-8", errors="replace") for path in reference_files)
     ]
     slimming_issues = find_slimming_issues(project_root) if project_root.exists() else []
+    organization_warnings = find_organization_warnings(project_root) if project_root.exists() else []
 
     checks: list[tuple[str, bool]] = [
         ("frontmatter present", bool(fields)),
@@ -431,6 +494,8 @@ def main() -> int:
         print(f"[{'OK' if ok else 'FAIL'}] {name}")
         if not ok:
             failed += 1
+    for warning in organization_warnings[:20]:
+        print(f"[WARN] project organization health: {warning}")
     return 1 if failed else 0
 
 

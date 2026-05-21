@@ -46,7 +46,7 @@
 ## Docs Owner 规则
 
 - 项目身份、主场景、验证命令：quick context / status。
-- 当前系统结构、runtime route、accepted behavior：`docs/current/`。
+- 当前系统结构、runtime route、accepted behavior：`docs/current/`；不写 completed GDD 时间线。
 - 下一步任务：`NEXT-STEPS.md` 或 active plan。
 - 完成证据：history / changelog。
 - 外部参考：`docs/reference/INDEX.md`，不是本地真相。
@@ -65,4 +65,5 @@
 - 主要目录有 `INDEX.md`：`docs/current/`、`docs/plans/`、`docs/plans/gdd/`、`docs/history/`、`docs/history/gdd/`、`docs/history/commits/`、`docs/reference/`。
 - completed / abandoned `GDD-*.md` 不同时存在于 `docs/plans/archive/` 和 `docs/history/gdd/`。
 - active docs 不复制长历史；history 不作为当前入口。
+- `STATUS.md`、`PROJECT-SNAPSHOT.md` 和 roadmap 不吸收历史流水；组织健康细则见 `project-organization-health.md`。
 - 新增文档默认中文，机器字段和 Godot 标识符保持英文。
